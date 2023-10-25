@@ -14,6 +14,17 @@ public class myBoard implements ChessBoard {
     }
 
     @Override
+    protected Object clone() {
+        myBoard newBoard = new myBoard();
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                newBoard.board[row][col] = board[row][col];
+            }
+        }
+        return newBoard;
+    }
+
+    @Override
     public void addPiece(ChessPosition position, ChessPiece piece) {
         board[position.getRow() - 1][position.getColumn() - 1] = piece;
     }
