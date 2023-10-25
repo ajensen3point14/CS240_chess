@@ -9,6 +9,7 @@ import java.util.List;
 public class myGame implements ChessGame {
     private myBoard board;
     private TeamColor teamTurn;
+    private ChessMove lastMove = null;
     public myGame() {
         this.board = new myBoard();
         this.teamTurn = TeamColor.WHITE; // White starts the game
@@ -38,20 +39,24 @@ public class myGame implements ChessGame {
             }
             setBoard((myBoard)originalBoard.clone());
         }
+
         // Castling
-        if (piece.getPieceType() == ChessPiece.PieceType.KING && !piece.hasMoved()) {
-            // kingside
+        if (piece.getPieceType() == ChessPiece.PieceType.KING && !piece.hasMoved() && !isInCheck(piece.getTeamColor())) {
+            TeamColor opponentTeam = piece.getTeamColor() == TeamColor.WHITE ? TeamColor.BLACK : TeamColor.WHITE;
+            // Kingside
             ChessPosition kingsideRookPos = new myPosition(startPosition.getRow(), 8);
             ChessPiece kingsideRook = board.getPiece(kingsideRookPos);
             if (kingsideRook != null &&
                     kingsideRook.getPieceType() == ChessPiece.PieceType.ROOK &&
+                    kingsideRook.getTeamColor() == piece.getTeamColor() &&
                     !kingsideRook.hasMoved() &&
                     board.getPiece(new myPosition(startPosition.getRow(), 6)) == null &&
                     board.getPiece(new myPosition(startPosition.getRow(), 7)) == null) {
                 // Check that the squares the king moves through are not under attack
-                if (!isSquareUnderAttack(new myPosition(startPosition.getRow(), 6)) && !isSquareUnderAttack(new myPosition(startPosition.getRow(), 7))) {
+                if (isSquareSafe(new myPosition(startPosition.getRow(), 6), opponentTeam) && isSquareSafe(new myPosition(startPosition.getRow(), 7), opponentTeam)) {
                     // Add kingside castling move
                     moves.add(new myMove(startPosition, new myPosition(startPosition.getRow(), 7), null));
+
                 }
             }
             // Queenside
@@ -59,24 +64,37 @@ public class myGame implements ChessGame {
             ChessPiece queensideRook = board.getPiece(queensideRookPos);
             if (queensideRook != null &&
                     queensideRook.getPieceType() == ChessPiece.PieceType.ROOK &&
+                    queensideRook.getTeamColor() == piece.getTeamColor() &&
                     !queensideRook.hasMoved() &&
                     board.getPiece(new myPosition(startPosition.getRow(), 2)) == null &&
                     board.getPiece(new myPosition(startPosition.getRow(), 3)) == null &&
                     board.getPiece(new myPosition(startPosition.getRow(), 4)) == null) {
                 // Check that the squares the king moves through are not under attack
-                if (!isSquareUnderAttack(new myPosition(startPosition.getRow(), 4)) && !isSquareUnderAttack(new myPosition(startPosition.getRow(), 3))) {
+                if (isSquareSafe(new myPosition(startPosition.getRow(), 4), opponentTeam) && isSquareSafe(new myPosition(startPosition.getRow(), 3), opponentTeam)) {
                     // Add queenside castling move
                     moves.add(new myMove(startPosition, new myPosition(startPosition.getRow(), 3), null));
                 }
             }
         }
+
+        // En passant
+        if (piece.getPieceType() == ChessPiece.PieceType.PAWN
+                && lastMove != null
+                && lastMove.getEndPosition().getRow() == startPosition.getRow()
+                && Math.abs(lastMove.getEndPosition().getRow() - lastMove.getStartPosition().getRow()) == 2
+                && Math.abs(lastMove.getEndPosition().getColumn() - startPosition.getColumn()) == 1) {
+            ChessPiece lastMovedPiece = board.getPiece(lastMove.getEndPosition());
+            if (lastMovedPiece.getPieceType() == ChessPiece.PieceType.PAWN
+                    && lastMovedPiece.getTeamColor() != piece.getTeamColor()) {
+                int verticalDirection = piece.getTeamColor() == TeamColor.WHITE ? 1 : -1;
+                myPosition newPos = new myPosition(startPosition.getRow() + verticalDirection, lastMove.getEndPosition().getColumn());
+                moves.add(new myMove(startPosition, newPos, null));
+            }
+        }
         return moves;
     }
 
-    // TODO: this seems like a lot of repeated code...
-    private boolean isSquareUnderAttack(ChessPosition square) {
-        TeamColor opponentTeam = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
-
+    private boolean isSquareSafe(ChessPosition square, TeamColor opponentTeam) {
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
                 ChessPosition position = new myPosition(row, col);
@@ -87,44 +105,52 @@ public class myGame implements ChessGame {
                     Collection<ChessMove> moves = piece.pieceMoves(board, position);
                     for (ChessMove move : moves) {
                         if (move.getEndPosition().equals(square)) {
-                            return true;
+                            return false;
                         }
                     }
                 }
             }
         }
-
-        return false;
+        return true;
     }
 
-    private void makeMove_internal(ChessMove move) {
-        ChessPosition start = move.getStartPosition();
-        ChessPosition end = move.getEndPosition();
-        ChessPiece piece = board.getPiece(start);
 
-        // move the piece, making the previous location null
-        ChessPiece.PieceType newPieceType = move.getPromotionPiece();
-        if (newPieceType != null) {
-            ChessPiece promotedPiece = null;
-            if (newPieceType == ChessPiece.PieceType.QUEEN) {
-                promotedPiece = new myQueen(piece.getTeamColor());
-            }else if (newPieceType == ChessPiece.PieceType.ROOK) {
-                promotedPiece = new myRook(piece.getTeamColor());
-            }else if (newPieceType == ChessPiece.PieceType.BISHOP) {
-                promotedPiece = new myBishop(piece.getTeamColor());
-            }else if (newPieceType == ChessPiece.PieceType.KNIGHT) {
-                promotedPiece = new myKnight(piece.getTeamColor());
-            }
-            board.addPiece(end, promotedPiece);
-        }else { board.addPiece(end, piece); }
-        // "remove" piece from start position to complete the move
-        board.addPiece(start, null);
-        board.getPiece(end).setHasMoved();
+    // Extracted method to make move_internal easier to read
+    private static ChessPiece getPromotedChessPiece(ChessPiece.PieceType newPieceType, ChessPiece piece) {
+        ChessPiece promotedPiece = null;
+        if (newPieceType == ChessPiece.PieceType.QUEEN) {
+            promotedPiece = new myQueen(piece.getTeamColor());
+        }else if (newPieceType == ChessPiece.PieceType.ROOK) {
+            promotedPiece = new myRook(piece.getTeamColor());
+        }else if (newPieceType == ChessPiece.PieceType.BISHOP) {
+            promotedPiece = new myBishop(piece.getTeamColor());
+        }else if (newPieceType == ChessPiece.PieceType.KNIGHT) {
+            promotedPiece = new myKnight(piece.getTeamColor());
+        }
+        return promotedPiece;
     }
 
     private void toggleTeamTurn() {
         teamTurn = (teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE;
     }
+
+    // Makes a temporary move to check validity
+    private void makeMove_internal(ChessMove move) {
+        ChessPosition start = move.getStartPosition();
+        ChessPosition end = move.getEndPosition();
+        ChessPiece piece = board.getPiece(start);
+
+        // move the piece
+        ChessPiece.PieceType newPieceType = move.getPromotionPiece();
+        if (newPieceType != null) {
+            ChessPiece promotedPiece = getPromotedChessPiece(newPieceType, piece);
+            board.addPiece(end, promotedPiece);
+        }else { board.addPiece(end, piece); }
+        // "remove" piece from start position to complete the move
+        board.addPiece(start, null);
+    }
+
+    // Actual moves
     @Override
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition start = move.getStartPosition();
@@ -133,8 +159,28 @@ public class myGame implements ChessGame {
 
         if (piece != null && piece.getTeamColor() == teamTurn) {
             if (validMoves(start).contains(move)) {
+                // check if castling kingside
+                if (piece.getPieceType() == ChessPiece.PieceType.KING && end.getColumn() - start.getColumn() > 1) {
+                    ChessPosition kingRookStart = new myPosition(start.getRow(), 8);
+                    ChessPosition kingRookEnd = new myPosition(start.getRow(), end.getColumn() - 1);
+                    makeMove_internal(new myMove(kingRookStart, kingRookEnd, null));
+                    board.getPiece(kingRookEnd).bumpMoveCt();
+                }
+                // check if castling queenside
+                if (piece.getPieceType() == ChessPiece.PieceType.KING && end.getColumn() - start.getColumn() < -1) {
+                    ChessPosition kingRookStart = new myPosition(start.getRow(), 1);
+                    ChessPosition kingRookEnd = new myPosition(start.getRow(), end.getColumn() + 1);
+                    makeMove_internal(new myMove(kingRookStart, kingRookEnd, null));
+                    board.getPiece(kingRookEnd).bumpMoveCt();
+                }
+                // En passant
+                if (start.getColumn() != end.getColumn() && piece.getPieceType() == ChessPiece.PieceType.PAWN) {
+                    // remove the enemy pawn
+                    myPosition tempPos = new myPosition(start.getRow(), end.getColumn());
+                    board.addPiece(tempPos, null);
+                }
                 makeMove_internal(move);
-                // TODO: Implement additional logic for handling castling, en passant
+                board.getPiece(end).bumpMoveCt();
                 toggleTeamTurn();
             } else {
                 throw new InvalidMoveException("Invalid move.");
@@ -142,6 +188,8 @@ public class myGame implements ChessGame {
         } else {
             throw new InvalidMoveException("Invalid piece or team's turn.");
         }
+        // track the last move made
+        lastMove = move;
     }
 
     @Override
@@ -215,9 +263,7 @@ public class myGame implements ChessGame {
     }
 
     @Override
-    public void setBoard(ChessBoard board) {
-        this.board = (myBoard) board;
-    }
+    public void setBoard(ChessBoard board) { this.board = (myBoard) board; }
 
     @Override
     public ChessBoard getBoard() { return board; }

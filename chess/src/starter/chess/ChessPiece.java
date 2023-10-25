@@ -43,5 +43,7 @@ public interface ChessPiece {
 
     //Castling handler
     boolean hasMoved();
-    void setHasMoved();
+    void bumpMoveCt();
+
+    int getMoveCount();
 }

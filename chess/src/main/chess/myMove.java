@@ -10,13 +10,14 @@ import java.util.Objects;
 public class myMove implements ChessMove {
     ChessPosition startPos;
     ChessPosition endPos;
-    ChessPiece.PieceType promotion; // TODO: is this class what I should be importing?
-
+    ChessPiece.PieceType promotion;
     public myMove(ChessPosition pos1, ChessPosition pos2, ChessPiece.PieceType new_promotion) {
         startPos = pos1;
         endPos = pos2;
         promotion = new_promotion;
     }
+
+
     @Override
     public ChessPosition getStartPosition() {
         return startPos;

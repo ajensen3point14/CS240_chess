@@ -9,7 +9,7 @@ import java.util.List;
 public abstract class myPiece implements ChessPiece {
     PieceType my_piece = null;
     ChessGame.TeamColor my_color = null;
-    boolean pieceHasMoved = false;
+    int numMoves = 0;
 
     public myPiece(ChessGame.TeamColor color, ChessPiece.PieceType pieceType) {
         my_piece = pieceType;
@@ -17,11 +17,17 @@ public abstract class myPiece implements ChessPiece {
     }
 
     @Override
-    public boolean hasMoved() { return pieceHasMoved; }
+    public boolean hasMoved() {
+        return numMoves > 0;
+    }
 
     @Override
-    public void setHasMoved() {
-        pieceHasMoved = true;
+    public void bumpMoveCt() {
+        numMoves++;
+    }
+
+    public int getMoveCount() {
+        return numMoves;
     }
 
     @Override
