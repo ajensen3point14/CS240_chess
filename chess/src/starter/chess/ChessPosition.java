@@ -7,10 +7,6 @@ package chess;
  * methods.
  */
 public interface ChessPosition {
-    static boolean isValidPosition(int newRow, int newCol) {
-        // TODO: implement? Is this necessary?
-        return true;
-    }
 
     /**
      * @return which row this position is in
@@ -23,4 +19,6 @@ public interface ChessPosition {
      *         1 codes for the left row
      */
     int getColumn();
+
+    boolean isValidPosition(int newRow, int newCol);
 }

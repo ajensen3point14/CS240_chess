@@ -16,21 +16,27 @@ public class TestFactory {
     }
 
     public static ChessGame getNewGame(){
-        // FIXME
-		return null;
+		return new myGame();
     }
 
     public static ChessPiece getNewPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type){
-		return new myPiece(pieceColor, type);
+        return switch(type){
+            case KING -> new myKing(pieceColor);
+            case QUEEN -> new myQueen(pieceColor);
+            case BISHOP -> new myBishop(pieceColor);
+            case KNIGHT -> new myKnight(pieceColor);
+            case ROOK -> new myRook(pieceColor);
+            case PAWN -> new myPawn(pieceColor);
+        };
     }
 
     public static ChessPosition getNewPosition(Integer row, Integer col){
-		return new myPosition(row, col);
+
+        return new myPosition(row, col);
     }
 
     public static ChessMove getNewMove(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece){
-        // FIXME
-		return null;
+		return new myMove(startPosition, endPosition, promotionPiece);
     }
     //------------------------------------------------------------------------------------------------------------------
 
