@@ -40,4 +40,8 @@ public interface ChessPiece {
      * @return Collection of valid moves
      */
     Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition);
+
+    //Castling handler
+    boolean hasMoved();
+    void setHasMoved();
 }

@@ -9,10 +9,19 @@ import java.util.List;
 public abstract class myPiece implements ChessPiece {
     PieceType my_piece = null;
     ChessGame.TeamColor my_color = null;
+    boolean pieceHasMoved = false;
 
     public myPiece(ChessGame.TeamColor color, ChessPiece.PieceType pieceType) {
         my_piece = pieceType;
         my_color = color;
+    }
+
+    @Override
+    public boolean hasMoved() { return pieceHasMoved; }
+
+    @Override
+    public void setHasMoved() {
+        pieceHasMoved = true;
     }
 
     @Override
