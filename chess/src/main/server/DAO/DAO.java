@@ -2,8 +2,7 @@ package server.DAO;
 
 import dataAccess.DataAccessException;
 
-public class DAO {
-    public void clear() throws DataAccessException {
-
-    }
+// These will change for phase 4
+public interface DAO {
+    public void clear() throws DataAccessException;
 }

@@ -1,5 +1,8 @@
 package server.requests;
 
+/**
+ * Request for joining a game
+ */
 public class JoinRequest {
     String authToken;
     int gameID;

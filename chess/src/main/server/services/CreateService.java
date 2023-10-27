@@ -6,7 +6,15 @@ import server.models.Game;
 import server.requests.CreateRequest;
 import server.results.CreateResult;
 
+/**
+ * Create a new game in the database
+ */
 public class CreateService {
+    /**
+     *
+     * @param req contains the authtoken necessary to create the new game
+     * @return the result of the new game
+     */
     public CreateResult create(CreateRequest req) {
         CreateResult res = new CreateResult();
 

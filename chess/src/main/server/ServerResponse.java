@@ -1,14 +1,16 @@
 package server;
 
+/**
+ * messages and status of the server after it responds to a request
+ */
 public class ServerResponse {
     String body;
     int statusCode;
 
-    public ServerResponse(String body, int statusCode) {
-        this.body = body;
-        this.statusCode = statusCode;
-    }
-
+    /**
+     * Sets status code and populates the message body appropriately - status is 0 by default
+     * @param body message body
+     */
     public ServerResponse(String body) {
         this.body = body;
         this.statusCode = 0;
@@ -18,15 +20,8 @@ public class ServerResponse {
         return body;
     }
 
-    public void setBody(String body) {
-        this.body = body;
-    }
-
     public int getStatusCode() {
         return statusCode;
     }
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
-    }
 }

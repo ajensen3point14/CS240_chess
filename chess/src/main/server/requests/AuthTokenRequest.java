@@ -1,7 +1,9 @@
 package server.requests;
 
-// this works for any handler that just wants an authToken: logout and listgames
-// TODO: is this a good idea?
+/**
+ * This authtoken request works for both the logout and list games handlers, since
+ * they require the same thing
+ */
 public class AuthTokenRequest {
     String authToken;
 

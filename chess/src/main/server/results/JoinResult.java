@@ -1,23 +1,12 @@
-package server.models;
-
-import chess.MyGame;
+package server.results;
 
 import java.util.ArrayList;
 
-/**
- * Creates a new game in the chess server
- */
-public class Game {
+public class JoinResult {
     int gameID;
     String whiteUsername;
     String blackUsername;
-    String gameName;
-    ArrayList<String> observers = new ArrayList<String>();
-    MyGame game;
-
-    public ArrayList<String> getObservers() {
-        return observers;
-    }
+    ArrayList<String> observers = new ArrayList<>();
 
     public int getGameID() {
         return gameID;
@@ -43,19 +32,11 @@ public class Game {
         this.blackUsername = blackUsername;
     }
 
-    public String getGameName() {
-        return gameName;
+    public ArrayList<String> getObservers() {
+        return observers;
     }
 
-    public void setGameName(String gameName) {
-        this.gameName = gameName;
-    }
-
-    public MyGame getGame() {
-        return game;
-    }
-
-    public void setGame(MyGame game) {
-        this.game = game;
+    public void setObservers(ArrayList<String> observers) {
+        this.observers = observers;
     }
 }

@@ -1,11 +1,10 @@
 package server.results;
 
-public class CreateResult extends Result{
+/**
+ * The result of a create request, setting the gameID
+ */
+public class CreateResult{
     int gameID;
-
-    public int getGameID() {
-        return gameID;
-    }
 
     public void setGameID(int gameID) {
         this.gameID = gameID;

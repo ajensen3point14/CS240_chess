@@ -1,9 +1,17 @@
 package server.models;
 
+/**
+ * Creates an AuthToken associated with a given username
+ */
 public class AuthToken {
     String authToken;
     String username;
 
+    /**
+     * Creates a new authToken for the specific user. Both are in string format.
+     * @param authToken
+     * @param username
+     */
     public AuthToken(String authToken, String username) {
         this.authToken = authToken;
         this.username = username;
@@ -19,9 +27,5 @@ public class AuthToken {
 
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 }

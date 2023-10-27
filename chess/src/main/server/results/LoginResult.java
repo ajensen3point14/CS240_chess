@@ -1,6 +1,9 @@
 package server.results;
 
-public class LoginResult extends Result{
+/**
+ * Result of a login request, looking at username and its authToken
+ */
+public class LoginResult{
     String username;
     String authToken;
 

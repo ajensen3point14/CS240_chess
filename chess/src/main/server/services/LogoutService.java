@@ -2,15 +2,17 @@ package server.services;
 
 import server.DAO.AuthTokenDAO;
 import server.requests.AuthTokenRequest;
-import server.results.LogoutResult;
 
+/**
+ * Log a user out
+ */
 public class LogoutService {
-    public LogoutResult logout(AuthTokenRequest req) {
-        LogoutResult res = new LogoutResult();
-
+    /**
+     * Log a user out by removing their authToken from the database
+     * @param req the requested logout authtoken
+     */
+    public void logout(AuthTokenRequest req) {
         AuthTokenDAO authTokenDAO = AuthTokenDAO.getInstance();
         authTokenDAO.remove(req.getAuthToken());
-
-        return res;
     }
 }

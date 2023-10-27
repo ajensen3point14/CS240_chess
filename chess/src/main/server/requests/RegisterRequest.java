@@ -1,5 +1,8 @@
 package server.requests;
 
+/**
+ * Request for registering a new user
+ */
 public class RegisterRequest {
     String username;
     String password;

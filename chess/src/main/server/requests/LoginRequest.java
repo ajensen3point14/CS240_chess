@@ -1,5 +1,8 @@
 package server.requests;
 
+/**
+ * Request for logging a user in
+ */
 public class LoginRequest {
     String username;
     String password;

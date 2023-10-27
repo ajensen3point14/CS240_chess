@@ -1,6 +1,9 @@
 package server.results;
 
-public class RegisterResult extends Result{
+/**
+ * Result of a register request, providing a username and an authToken
+ */
+public class RegisterResult{
     String username;
     String authToken;
 

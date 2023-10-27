@@ -4,9 +4,11 @@ import server.models.Game;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-public class ListResult extends Result{
+/**
+ * Returns a list of all the games in the database
+ */
+public class ListResult{
     ArrayList<ListResultItem> games = new ArrayList<>();
 
     public ListResult(Collection<Game> gameList) {
