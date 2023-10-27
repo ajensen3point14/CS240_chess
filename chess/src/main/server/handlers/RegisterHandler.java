@@ -5,8 +5,6 @@ import server.requests.RegisterRequest;
 import server.results.Result;
 import server.services.RegisterService;
 
-import java.util.HashMap;
-
 public class RegisterHandler extends Handler {
     @Override
     public ServerResponse handleRequest(String input, String authToken) {

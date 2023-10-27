@@ -1,8 +1,6 @@
 package server.services;
 
 import server.DAO.AuthTokenDAO;
-import server.DAO.UserDAO;
-import server.models.AuthToken;
 import server.requests.LogoutRequest;
 import server.results.LogoutResult;
 

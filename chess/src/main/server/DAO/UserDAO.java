@@ -38,4 +38,8 @@ public class UserDAO extends DAO{
 
         return foundUser;
     }
+    @Override
+    public void clear() {
+        users.clear();
+    }
 }

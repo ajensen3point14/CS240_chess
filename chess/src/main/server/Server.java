@@ -29,6 +29,7 @@ public class Server {
         Spark.post("/user", this::user);
         Spark.post("/session", this::session);
         Spark.delete("/session", this::logout);
+        Spark.delete("/db", this::clear);
 
         return;
     }
@@ -58,5 +59,8 @@ public class Server {
     private Object logout(Request req, Response res) {
         String token = req.headers("authorization");
         return doRequest(req, res, new LogoutHandler(), token);
+    }
+    private Object clear(Request req, Response res) {
+        return doRequest(req, res, new ClearHandler(), null);
     }
 }
