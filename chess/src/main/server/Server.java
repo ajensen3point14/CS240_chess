@@ -29,6 +29,9 @@ public class Server {
         Spark.post("/user", this::user);
         Spark.post("/session", this::session);
         Spark.delete("/session", this::logout);
+        Spark.get("/game", this::listGames);
+        Spark.post("/game", this::create);
+        Spark.put("/game", this::join);
         Spark.delete("/db", this::clear);
 
         return;
@@ -59,6 +62,18 @@ public class Server {
     private Object logout(Request req, Response res) {
         String token = req.headers("authorization");
         return doRequest(req, res, new LogoutHandler(), token);
+    }
+    private Object listGames(Request req, Response res) {
+        String token = req.headers("authorization");
+        return doRequest(req, res, new ListHandler(), token);
+    }
+    private Object create(Request req, Response res) {
+        String token = req.headers("authorization");
+        return doRequest(req, res, new CreateHandler(), token);
+    }
+    private Object join(Request req, Response res) {
+        String token = req.headers("authorization");
+        return doRequest(req, res, new JoinHandler(), token);
     }
     private Object clear(Request req, Response res) {
         return doRequest(req, res, new ClearHandler(), null);

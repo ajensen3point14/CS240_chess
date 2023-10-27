@@ -37,7 +37,7 @@ public class AuthTokenDAO extends DAO{
             throw new MyServerException("bad request", 400);
         }
         if (!authTokens.containsKey(name)) {
-            throw new MyServerException("bad request", 400);
+            throw new MyServerException("unauthorized", 401);
         }
         return authTokens.get(name);
     }

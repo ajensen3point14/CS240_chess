@@ -13,7 +13,7 @@ public class RegisterService {
         UserDAO userDAO = UserDAO.getInstance();
         userDAO.insert(req.getUsername(), req.getPassword(), req.getEmail());
         AuthTokenDAO authTokenDAO = AuthTokenDAO.getInstance();
-        AuthToken myAuthToken = authTokenDAO.createOrFind(req.getUsername());
+        AuthToken myAuthToken = authTokenDAO.create(req.getUsername());
 
         res.setUsername(myAuthToken.getUsername());
         res.setAuthToken(myAuthToken.getAuthToken());

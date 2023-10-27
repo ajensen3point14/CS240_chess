@@ -1,20 +1,20 @@
-package server.models;
+package server.results;
 
-import chess.MyGame;
+import server.models.Game;
 
-import java.util.ArrayList;
-
-public class Game {
+public class ListResultItem{
     int gameID;
     String whiteUsername;
     String blackUsername;
     String gameName;
-    ArrayList<String> observers = new ArrayList<String>();
-    MyGame game;
 
-    public ArrayList<String> getObservers() {
-        return observers;
+    public ListResultItem(Game g) {
+        this.gameID = g.getGameID();
+        this.whiteUsername = g.getWhiteUsername();
+        this.blackUsername = g.getBlackUsername();
+        this.gameName = g.getGameName();
     }
+
     public int getGameID() {
         return gameID;
     }
@@ -45,13 +45,5 @@ public class Game {
 
     public void setGameName(String gameName) {
         this.gameName = gameName;
-    }
-
-    public MyGame getGame() {
-        return game;
-    }
-
-    public void setGame(MyGame game) {
-        this.game = game;
     }
 }

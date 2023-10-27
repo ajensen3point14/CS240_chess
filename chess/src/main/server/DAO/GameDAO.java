@@ -1,12 +1,10 @@
 package server.DAO;
 
 import server.MyServerException;
-import server.models.AuthToken;
 import server.models.Game;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.UUID;
 
 public class GameDAO extends DAO{
     HashMap<Integer, Game> games = new HashMap<Integer, Game>();
@@ -17,6 +15,22 @@ public class GameDAO extends DAO{
             single_instance = new GameDAO();
 
         return single_instance;
+    }
+    public Game addGame(String gameName) {
+        if (gameName.isEmpty()) {
+            throw new MyServerException("bad request", 400);
+        }
+        int maxGames = 1000;
+        for (int ii = 0; ii < maxGames; ii++) {
+            if (!games.containsKey(ii)) {
+                Game newGame = new Game();
+                newGame.setGameID(ii);
+                newGame.setGameName(gameName);
+                games.put(ii, newGame);
+                return newGame;
+            }
+        }
+        throw new MyServerException("server at max game capacity", 503);
     }
     public Game find(int id) {
         if (!games.containsKey(id)) {

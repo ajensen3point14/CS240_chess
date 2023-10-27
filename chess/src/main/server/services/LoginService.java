@@ -13,7 +13,7 @@ public class LoginService {
         UserDAO userDAO = UserDAO.getInstance();
         userDAO.find(req.getUsername(), req.getPassword());
         AuthTokenDAO authTokenDAO = AuthTokenDAO.getInstance();
-        AuthToken myAuthToken = authTokenDAO.create(req.getUsername());
+        AuthToken myAuthToken = authTokenDAO.find(req.getUsername());
 
         res.setUsername(myAuthToken.getUsername());
         res.setAuthToken(myAuthToken.getAuthToken());
