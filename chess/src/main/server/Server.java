@@ -28,12 +28,13 @@ public class Server {
         // TODO: register handlers for each endpoint
         Spark.post("/user", this::user);
         Spark.post("/session", this::session);
+        Spark.delete("/session", this::logout);
 
         return;
     }
-    private String doRequest(Request req, Response res, Handler handler) {
+    private String doRequest(Request req, Response res, Handler handler, String authToken) {
         try {
-            ServerResponse info = handler.handleRequest(req.body());
+            ServerResponse info = handler.handleRequest(req.body(), authToken);
             int errorCode = info.getStatusCode();
             if (errorCode != 0) {
                 res.status(errorCode);
@@ -49,9 +50,13 @@ public class Server {
         }
     }
     private Object user(Request req, Response res) {
-        return doRequest(req, res, new RegisterHandler());
+        return doRequest(req, res, new RegisterHandler(), null);
     }
     private Object session(Request req, Response res) {
-        return doRequest(req, res, new LoginHandler());
+        return doRequest(req, res, new LoginHandler(), null);
+    }
+    private Object logout(Request req, Response res) {
+        String token = req.headers("authorization");
+        return doRequest(req, res, new LogoutHandler(), token);
     }
 }

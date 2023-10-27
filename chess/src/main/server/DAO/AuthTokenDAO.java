@@ -30,4 +30,10 @@ public class AuthTokenDAO extends DAO{
         }
         return authTokens.get(name);
     }
+    public void remove(String token) {
+        if (token.isEmpty() || !authTokens.containsKey(token)) {
+            throw new MyServerException("unauthorized", 401);
+        }
+        authTokens.remove(token);
+    }
 }
