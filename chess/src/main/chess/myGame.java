@@ -12,7 +12,8 @@ public class myGame implements ChessGame {
     private ChessMove lastMove = null;
     public myGame() {
         this.board = new myBoard();
-        this.teamTurn = TeamColor.WHITE; // White starts the game
+        // White starts the game
+        this.teamTurn = TeamColor.WHITE;
     }
 
     @Override
@@ -114,7 +115,6 @@ public class myGame implements ChessGame {
         return true;
     }
 
-
     // Extracted method to make move_internal easier to read
     private static ChessPiece getPromotedChessPiece(ChessPiece.PieceType newPieceType, ChessPiece piece) {
         ChessPiece promotedPiece = null;
@@ -149,7 +149,6 @@ public class myGame implements ChessGame {
         // "remove" piece from start position to complete the move
         board.addPiece(start, null);
     }
-
     // Actual moves
     @Override
     public void makeMove(ChessMove move) throws InvalidMoveException {
@@ -223,7 +222,6 @@ public class myGame implements ChessGame {
     @Override
     public boolean isInCheckmate(TeamColor teamColor) {
         myBoard originalBoard = (myBoard)board.clone();
-        //if (teamTurn != teamColor) { return false; }
         if (!isInCheck(teamColor)) { return false; }
         for (int row = 1; row <= 8; row++) {
             for (int col = 1; col <= 8; col++) {
