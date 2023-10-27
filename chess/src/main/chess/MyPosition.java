@@ -1,10 +1,8 @@
 package chess;
 
-import chess.ChessPosition;
-
 import java.util.Objects;
 
-public class myPosition implements ChessPosition {
+public class MyPosition implements ChessPosition {
     private int row = 0;
     private int col = 0;
 
@@ -12,7 +10,7 @@ public class myPosition implements ChessPosition {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        myPosition that = (myPosition) o;
+        MyPosition that = (MyPosition) o;
         return row == that.row && col == that.col;
     }
 
@@ -29,7 +27,7 @@ public class myPosition implements ChessPosition {
         return Objects.hash(row, col);
     }
 
-    public myPosition(int new_row, int new_col) {
+    public MyPosition(int new_row, int new_col) {
         row = new_row;
         col = new_col;
     }

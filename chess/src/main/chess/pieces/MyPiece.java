@@ -6,12 +6,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class myPiece implements ChessPiece {
+public abstract class MyPiece implements ChessPiece {
     PieceType my_piece = null;
     ChessGame.TeamColor my_color = null;
     int numMoves = 0;
 
-    public myPiece(ChessGame.TeamColor color, ChessPiece.PieceType pieceType) {
+    public MyPiece(ChessGame.TeamColor color, ChessPiece.PieceType pieceType) {
         my_piece = pieceType;
         my_color = color;
     }
@@ -49,7 +49,7 @@ public abstract class myPiece implements ChessPiece {
             for (int step = 1; step <= maxStep; step++) {
                 int newRow = row + step * rowDirections[i];
                 int newCol = col + step * colDirections[i];
-                myPosition newPosition = new myPosition(newRow, newCol);
+                MyPosition newPosition = new MyPosition(newRow, newCol);
 
                 // Check if the newPosition is valid
                 if (myPosition.isValidPosition(newRow, newCol)) {
@@ -57,17 +57,17 @@ public abstract class myPiece implements ChessPiece {
 
                     // if the space is empty, it is a valid move
                     if (targetPiece == null) {
-                        validMoves.add(new myMove(myPosition, newPosition, null));
+                        validMoves.add(new MyMove(myPosition, newPosition, null));
                     } else if (targetPiece.getTeamColor() != getTeamColor()) {
                         // if there is an enemy piece there, it is a valid move, and we will take the piece
-                        validMoves.add(new myMove(myPosition, newPosition, null));
+                        validMoves.add(new MyMove(myPosition, newPosition, null));
                         break;
                     } else {
-                        // if the player's own piece is there, this is an invalid move.
+                        // if a good guy piece is there, this is an invalid move.
                         break;
                     }
                 } else {
-                    // Stop in this direction if it goes out of the board
+                    // If you are here, you have gone off the board
                     break;
                 }
             }

@@ -12,36 +12,36 @@ public class TestFactory {
     //Chess Functions
     //------------------------------------------------------------------------------------------------------------------
     public static ChessBoard getNewBoard(){
-		return new myBoard();
+		return new MyBoard();
     }
 
     public static ChessGame getNewGame(){
-		return new myGame();
+		return new MyGame();
     }
 
     public static ChessPiece getNewPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type){
         return switch(type){
-            case KING -> new myKing(pieceColor);
-            case QUEEN -> new myQueen(pieceColor);
-            case BISHOP -> new myBishop(pieceColor);
-            case KNIGHT -> new myKnight(pieceColor);
-            case ROOK -> new myRook(pieceColor);
-            case PAWN -> new myPawn(pieceColor);
+            case KING -> new MyKing(pieceColor);
+            case QUEEN -> new MyQueen(pieceColor);
+            case BISHOP -> new MyBishop(pieceColor);
+            case KNIGHT -> new MyKnight(pieceColor);
+            case ROOK -> new MyRook(pieceColor);
+            case PAWN -> new MyPawn(pieceColor);
         };
     }
 
     public static ChessPosition getNewPosition(Integer row, Integer col){
 
-        return new myPosition(row, col);
+        return new MyPosition(row, col);
     }
 
     public static ChessMove getNewMove(ChessPosition startPosition, ChessPosition endPosition, ChessPiece.PieceType promotionPiece){
-		return new myMove(startPosition, endPosition, promotionPiece);
+		return new MyMove(startPosition, endPosition, promotionPiece);
     }
     //------------------------------------------------------------------------------------------------------------------
 
 
-    //Server API's
+    //server.Server API's
     //------------------------------------------------------------------------------------------------------------------
     public static String getServerPort(){
         return "8080";

@@ -1,17 +1,12 @@
 package chess;
 
-import chess.ChessMove;
-import chess.ChessPiece;
-import chess.ChessPosition;
-import chess.pieces.myPiece;
-
 import java.util.Objects;
 
-public class myMove implements ChessMove {
+public class MyMove implements ChessMove {
     ChessPosition startPos;
     ChessPosition endPos;
     ChessPiece.PieceType promotion;
-    public myMove(ChessPosition pos1, ChessPosition pos2, ChessPiece.PieceType new_promotion) {
+    public MyMove(ChessPosition pos1, ChessPosition pos2, ChessPiece.PieceType new_promotion) {
         startPos = pos1;
         endPos = pos2;
         promotion = new_promotion;
@@ -32,7 +27,7 @@ public class myMove implements ChessMove {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        myMove myMove = (myMove) o;
+        MyMove myMove = (MyMove) o;
         return Objects.equals(startPos, myMove.startPos)
                 && Objects.equals(endPos, myMove.endPos)
                 && promotion == myMove.promotion;
@@ -54,11 +49,6 @@ public class myMove implements ChessMove {
 
     @Override
     public ChessPiece.PieceType getPromotionPiece() {
-        // TODO: If pawn is in promotion row, get a promotion piece
-        /*
-            If the move would not result in a pawn being promoted,
-            the promotion type field should be null.
-         */
         return promotion;
     }
 }

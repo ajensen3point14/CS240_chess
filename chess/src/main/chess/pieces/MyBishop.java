@@ -2,12 +2,10 @@ package chess.pieces;
 
 import chess.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-public class myBishop extends myPiece {
-    public myBishop(ChessGame.TeamColor color) {
+public class MyBishop extends MyPiece {
+    public MyBishop(ChessGame.TeamColor color) {
         super(color, PieceType.BISHOP);
     }
 

@@ -7,8 +7,8 @@ import chess.ChessPosition;
 
 import java.util.Collection;
 
-public class myKnight extends myPiece {
-    public myKnight(ChessGame.TeamColor color) {
+public class MyKnight extends MyPiece {
+    public MyKnight(ChessGame.TeamColor color) {
         super(color, PieceType.KNIGHT);
     }
 

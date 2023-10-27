@@ -2,12 +2,10 @@ package chess.pieces;
 
 import chess.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-public class myRook extends myPiece {
-    public myRook(ChessGame.TeamColor color) {
+public class MyRook extends MyPiece {
+    public MyRook(ChessGame.TeamColor color) {
         super(color, PieceType.ROOK);
     }
 
