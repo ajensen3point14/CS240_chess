@@ -1,8 +1,11 @@
 package server.services;
 
+import dataAccess.DataAccessException;
 import server.DAO.AuthTokenDAO;
 import server.DAO.UserDAO;
+import server.MyServerException;
 import server.models.AuthToken;
+import server.models.User;
 import server.requests.LoginRequest;
 import server.results.LoginResult;
 
@@ -19,7 +22,10 @@ public class LoginService {
         LoginResult res = new LoginResult();
 
         UserDAO userDAO = UserDAO.getInstance();
-        userDAO.find(req.getUsername(), req.getPassword());
+        User user = userDAO.find(req.getUsername(), req.getPassword());
+        if (user == null) {
+            throw new MyServerException("Unauthorized", 401);
+        }
         AuthTokenDAO authTokenDAO = AuthTokenDAO.getInstance();
         AuthToken myAuthToken = authTokenDAO.find(req.getUsername());
 

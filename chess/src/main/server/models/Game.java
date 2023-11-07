@@ -15,6 +15,15 @@ public class Game {
     ArrayList<String> observers = new ArrayList<String>();
     MyGame game;
 
+    public Game(int id, String name) {
+        this.gameID = id;
+        this.gameName = name;
+    }
+
+    public void setObservers(ArrayList<String> observers) {
+        this.observers = observers;
+    }
+
     public ArrayList<String> getObservers() {
         return observers;
     }

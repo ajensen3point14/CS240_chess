@@ -7,6 +7,7 @@ import server.DAO.AuthTokenDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
 import server.models.AuthToken;
+import server.models.User;
 import server.requests.LoginRequest;
 import server.results.LoginResult;
 import server.services.ClearService;
@@ -24,7 +25,8 @@ class LoginServiceTest {
     @Test
     @DisplayName("Junit login success")
     public void successLogin() {
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
 
         // Log a user in
@@ -40,7 +42,8 @@ class LoginServiceTest {
     @Test
     @DisplayName("Junit login fail")
     public void failLogin() {
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
         LoginRequest request = new LoginRequest();
         LoginService loginService = new LoginService();

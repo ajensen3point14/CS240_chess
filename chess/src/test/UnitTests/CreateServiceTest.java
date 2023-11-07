@@ -8,6 +8,7 @@ import server.DAO.GameDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
 import server.models.AuthToken;
+import server.models.User;
 import server.requests.CreateRequest;
 import server.services.ClearService;
 import server.services.CreateService;
@@ -25,11 +26,11 @@ class CreateServiceTest {
     @DisplayName("Junit Create game success")
     public void successCreate() {
         // Create a user and an authToken (there must be a user to create a game)
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
 
         assertNotNull(UserDAO.getInstance().find("Doug", "Fillmore"));
-        assertNotNull(AuthTokenDAO.getInstance().find("Doug"));
         assertNotNull(AuthTokenDAO.getInstance().find(token.getAuthToken()));
 
         // Add a game
@@ -47,11 +48,11 @@ class CreateServiceTest {
     @DisplayName("Junit create game negative")
     public void failCreate() {
         // Create a user and an authToken (there must be a user to create a game)
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
 
         assertNotNull(UserDAO.getInstance().find("Doug", "Fillmore"));
-        assertNotNull(AuthTokenDAO.getInstance().find("Doug"));
         assertNotNull(AuthTokenDAO.getInstance().find(token.getAuthToken()));
 
         // Try to add a game with no name

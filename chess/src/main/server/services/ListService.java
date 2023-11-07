@@ -2,6 +2,8 @@ package server.services;
 
 import server.DAO.AuthTokenDAO;
 import server.DAO.GameDAO;
+import server.MyServerException;
+import server.models.AuthToken;
 import server.requests.AuthTokenRequest;
 import server.results.ListResult;
 
@@ -17,7 +19,10 @@ public class ListService {
     public ListResult list(AuthTokenRequest req) {
         // verify that the user is logged in
         AuthTokenDAO authTokenDAO = AuthTokenDAO.getInstance();
-        authTokenDAO.find(req.getAuthToken());
+        AuthToken token = authTokenDAO.find(req.getAuthToken());
+        if (token == null) {
+            throw new MyServerException("Unauthorized", 401);
+        }
 
         return new ListResult(GameDAO.getInstance().findAll());
     }

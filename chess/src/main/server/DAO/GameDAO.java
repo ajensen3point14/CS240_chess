@@ -1,10 +1,20 @@
 package server.DAO;
 
-import server.MyServerException;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import dataAccess.DataAccessException;
+import dataAccess.Database;
 import server.models.Game;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.List;
 
 /**
  * Interactions between the database and the list of games.
@@ -12,81 +22,156 @@ import java.util.HashMap;
  * The maximum number of supported games is defined here.
  */
 public class GameDAO implements DAO{
-    // Define the max number of simultaneous games the server supports
-    private static final int MAXGAMES = 1000;
-    HashMap<Integer, Game> games = new HashMap<Integer, Game>();
+    private final Connection connection;
+    protected Gson gson = new Gson();
 
-    // Singleton pattern for games
     private static GameDAO single_instance = null;
-    public static synchronized GameDAO getInstance(){
+
+    public static synchronized GameDAO getInstance() {
         if (single_instance == null)
             single_instance = new GameDAO();
 
         return single_instance;
     }
 
+    private GameDAO() {
+        this.connection = Database.connection();
+        createTable();
+    }
+
+    /**
+     * Create the game table if it doesn't exist.
+     */
+    public void createTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS game (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY," +
+                "game_name VARCHAR(255) NOT NULL," +
+                "white_username VARCHAR(255)," +
+                "black_username VARCHAR(255)," +
+                "observers VARCHAR(1024)," +
+                "game_state VARCHAR(1024)" +
+                ")";
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createTableSQL);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DataAccessException("Error creating game table");
+        }
+    }
+
     /**
      * Add a game to the database. Throw a max capacity error if full.
      * This will set a gameID, and set the given name for the game.
-     * @param gameName string name for this game. This must be unique
-     * @throws MyServerException bad request if there is no provided game name
-     * @throws MyServerException max capacity 503 if server is full
-     * @return game that is associated with this name
      */
-    public Game addGame(String gameName) {
-        if (gameName == null || gameName.isEmpty()) {
-            throw new MyServerException("bad request", 400);
-        }
-        for (int ii = 1; ii < MAXGAMES; ii++) {
-            if (!games.containsKey(ii)) {
-                Game newGame = new Game();
-                newGame.setGameID(ii);
-                newGame.setGameName(gameName);
-                games.put(ii, newGame);
-                return newGame;
+    public Game addGame(Game game) {
+        String insertSQL = "INSERT INTO game (game_name) VALUES (?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS)) {
+            preparedStatement.setString(1, game.getGameName());
+            preparedStatement.executeUpdate();
+
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int gameId = generatedKeys.getInt(1);
+                game.setGameID(gameId);
+            } else {
+                throw new DataAccessException("Failed to create game");
             }
+            return game;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DataAccessException("Error adding a game");
         }
-        throw new MyServerException("server at max game capacity", 503);
     }
 
     /**
-     * Find a specific game in the database. Throw a bad request error if the game is not found
-     * @param id identifier that will be used to find the game
-     * @throws MyServerException bad request if the game is not in the database
-     * @return the found game
+     * Find a specific game by its ID.
      */
     public Game find(int id) {
-        if (!games.containsKey(id)) {
-            throw new MyServerException("bad request", 400);
+        String findSQL = "SELECT * FROM game WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(findSQL)) {
+            preparedStatement.setInt(1, id);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                return extractGame(resultSet);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return games.get(id);
+        return null;
     }
 
     /**
-     * @return a list of all games in the database
+     * Find all games in the database.
      */
     public Collection<Game> findAll() {
-        return games.values();
-    }
-
-    /**
-     * This method is not used in the current implementation of the chess server,
-     * but the idea is clear: remove a specific game from the database.
-     * @param id identifier of game to be removed
-     * @throws MyServerException bad request if the keyID is not in the database
-     */
-    public void remove(int id) {
-        if (!games.containsKey(id)) {
-            throw new MyServerException("bad request", 400);
+        String findAllSQL = "SELECT * FROM game";
+        List<Game> games = new ArrayList<>();
+        try (Statement statement = connection.prepareStatement(findAllSQL)) {
+            ResultSet resultSet = statement.executeQuery(findAllSQL);
+            while (resultSet.next()) {
+                Game game = extractGame(resultSet);
+                games.add(game);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        games.remove(id);
+        return games;
+    }
+
+    // helper function for find and findAll methods
+    private Game extractGame(ResultSet resultSet) throws SQLException {
+        Game game = new Game(
+                resultSet.getInt("id"),
+                resultSet.getString("game_name")
+        );
+        game.setWhiteUsername(resultSet.getString("white_username"));
+        game.setBlackUsername(resultSet.getString("black_username"));
+        ArrayList<String> obsList = gson.fromJson(resultSet.getString("observers"),
+                new TypeToken<List<String>>(){}.getType());
+        if (obsList == null) { obsList = new ArrayList<>(); }
+        game.setObservers(obsList);
+
+        return game;
+    }
+
+    public void update(Game game) {
+        // Construct SQL statements for each column update
+        String updateGameSQL = "UPDATE game SET game_name = ?,  " +
+                "white_username = ?, " +
+                "black_username = ?, " +
+                "observers = ?, " +
+                "game_state = ? " +
+                "WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateGameSQL)) {
+            preparedStatement.setString(1, game.getGameName());
+            preparedStatement.setString(2, game.getWhiteUsername());
+            preparedStatement.setString(3, game.getBlackUsername());
+            String observerStr = gson.toJson(game.getObservers());
+            preparedStatement.setString(4, observerStr);
+            preparedStatement.setString(5, ""); // TODO: update the game state
+            preparedStatement.setInt(6, game.getGameID());
+            int updatedRows = preparedStatement.executeUpdate();
+
+            if (updatedRows == 0) {
+                throw new DataAccessException("Game not found or not updated");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DataAccessException("Error updating a game");
+        }
     }
 
     /**
-     * clear the games database
+     * Clear the game database.
      */
     @Override
     public void clear() {
-        games.clear();
+        String clearTableSQL = "TRUNCATE TABLE game";
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(clearTableSQL);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

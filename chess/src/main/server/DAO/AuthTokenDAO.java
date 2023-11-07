@@ -1,9 +1,13 @@
 package server.DAO;
 
-import server.MyServerException;
+import dataAccess.DataAccessException;
+import dataAccess.Database;
 import server.models.AuthToken;
-
-import java.util.HashMap;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.UUID;
 
 /**
@@ -12,81 +16,103 @@ import java.util.UUID;
  * the other as a username to the token, providing order one lookup in either direction.
  */
 public class AuthTokenDAO implements DAO{
-    // maps authToken to a username
-    HashMap<String, AuthToken> authTokens = new HashMap<String, AuthToken>();
+    private final Connection connection;
 
-    // AuthToken singleton
     private static AuthTokenDAO single_instance = null;
-    public static synchronized AuthTokenDAO getInstance(){
+
+    public static synchronized AuthTokenDAO getInstance() {
         if (single_instance == null)
             single_instance = new AuthTokenDAO();
 
         return single_instance;
     }
 
-    /**
-     * Creates a new authToken for the given username
-     * @param name string username that will be associated with the token
-     * @throws MyServerException bad request if name is empty
-     * @throws  MyServerException already taken if the user is already in the database
-     * @return the token associated with the given username
-     */
-    public AuthToken create(String name) {
-        if (name.isEmpty()) {
-            throw new MyServerException("bad request", 400);
-        }
-        if (authTokens.containsKey(name)) {
-            throw new MyServerException("already taken", 403);
-        }
-        // If the user doesn't already have an authToken, generate one and insert it into the map
-        // We insert both ways so that we have instant lookup of either the user or the token
-        String token = UUID.randomUUID().toString();
-        AuthToken newToken = new AuthToken(token, name);
-        authTokens.put(token, newToken);
-        authTokens.put(name, newToken);
+    private AuthTokenDAO() {
+        this.connection = Database.connection();
+        createTable();
+    }
 
-        return authTokens.get(name);
+
+    /**
+     * Create the auth_token table if it doesn't exist.
+     */
+    public void createTable() {
+        String createTableSQL = "CREATE TABLE IF NOT EXISTS auth_token (" +
+                "token VARCHAR(255) PRIMARY KEY," +
+                "username VARCHAR(255) NOT NULL" +
+                ")";
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(createTableSQL);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DataAccessException("Error creating auth_token table");
+        }
+    }
+
+    /**
+     * Creates a new authToken for the given username.
+     */
+    public AuthToken create(String username) {
+        String token = UUID.randomUUID().toString();
+        String insertSQL = "INSERT INTO auth_token (token, username) VALUES (?, ?)";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {
+            preparedStatement.setString(1, token);
+            preparedStatement.setString(2, username);
+            preparedStatement.executeUpdate();
+
+            return new AuthToken(token, username);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DataAccessException("Error creating an auth token");
+        }
     }
 
     /**
      * Find the authToken for the associated username.
-     * @throws MyServerException if token is not found, throw "unauthorized"
-     * @throws MyServerException if the name provided is empty, throw "bad request"
-     * @param name String username used to identify the token.
-     * @return the authToken
      */
-    public AuthToken find(String name) {
-        if (name.isEmpty()) {
-            throw new MyServerException("bad request", 400);
+    public AuthToken find(String myToken) {
+        String findSQL = "SELECT * FROM auth_token WHERE token = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(findSQL)) {
+            preparedStatement.setString(1, myToken);
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                String username = resultSet.getString("username");
+                return new AuthToken(myToken, username);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        if (!authTokens.containsKey(name)) {
-            throw new MyServerException("unauthorized", 401);
-        }
-        return authTokens.get(name);
+        return null;
     }
 
     /**
-     * Remove the token from the map. The remove call occurs twice because we inserted the token
-     * twice, once from token to username, and once from username to token
-     * @param token string authToken that will be deleted
-     * @throws MyServerException unauthorized if the token is empty or already exists in the database
+     * Remove the token for the specified username.
      */
     public void remove(String token) {
-        if (token.isEmpty() || !authTokens.containsKey(token)) {
-            throw new MyServerException("unauthorized", 401);
-        }
-        AuthToken myToken = find(token);
-        if (myToken != null) {
-            authTokens.remove(myToken.getAuthToken());
-            authTokens.remove(myToken.getUsername());
+        String removeSQL = "DELETE FROM auth_token WHERE token = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(removeSQL)) {
+            preparedStatement.setString(1, token);
+            int deletedRows = preparedStatement.executeUpdate();
+
+            if (deletedRows == 0) {
+                throw new DataAccessException("Auth token not found");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 
     /**
-     * clear the authTokens hashMap
+     * Clear the auth_token database.
      */
     @Override
     public void clear() {
-        authTokens.clear();
+        String clearTableSQL = "TRUNCATE TABLE auth_token";
+        try (Statement statement = connection.createStatement()) {
+            statement.execute(clearTableSQL);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }

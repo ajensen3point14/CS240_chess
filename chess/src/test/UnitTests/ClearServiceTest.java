@@ -8,6 +8,8 @@ import server.DAO.GameDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
 import server.models.AuthToken;
+import server.models.Game;
+import server.models.User;
 import server.requests.AuthTokenRequest;
 import server.results.ListResult;
 import server.services.ClearService;
@@ -26,12 +28,13 @@ class ClearServiceTest {
     @DisplayName("Junit clear")
     public void successClear() {
         // Create a user, authToken, and a game
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
-        GameDAO.getInstance().addGame("myGame");
+        Game game = new Game(0, "myGame");
+        GameDAO.getInstance().addGame(game);
 
         assertNotNull(UserDAO.getInstance().find("Doug", "Fillmore"));
-        assertNotNull(AuthTokenDAO.getInstance().find("Doug"));
         assertNotNull(AuthTokenDAO.getInstance().find(token.getAuthToken()));
 
         // Verify that the database has been populated
@@ -50,8 +53,7 @@ class ClearServiceTest {
         // Verify that all databases have been cleared
         assertThrows(MyServerException.class, () -> listService.list(request));
         assertEquals(0, GameDAO.getInstance().findAll().size());
-        assertThrows(MyServerException.class, () -> UserDAO.getInstance().find("Doug", "Fillmore"));
-        assertThrows(MyServerException.class, () -> AuthTokenDAO.getInstance().find("Doug"));
-        assertThrows(MyServerException.class, () -> AuthTokenDAO.getInstance().find(token.getAuthToken()));
+        assertNull(UserDAO.getInstance().find("Doug", "Fillmore"));
+        assertNull(AuthTokenDAO.getInstance().find(token.getAuthToken()));
     }
 }

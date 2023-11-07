@@ -7,6 +7,7 @@ import server.DAO.AuthTokenDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
 import server.models.AuthToken;
+import server.models.User;
 import server.requests.AuthTokenRequest;
 import server.requests.LoginRequest;
 import server.results.LoginResult;
@@ -26,10 +27,11 @@ class LogoutServiceTest {
     @Test
     @DisplayName("Junit logout success")
     public void successLogout() {
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
 
-        // Log a user in
+        // Log a user out
         LoginRequest request = new LoginRequest();
         LoginService loginService = new LoginService();
         request.setUsername("Doug");
@@ -42,14 +44,16 @@ class LogoutServiceTest {
         AuthTokenRequest authReq = new AuthTokenRequest();
         authReq.setAuthToken(token.getAuthToken());
         LogoutService logout = new LogoutService();
+        logout.logout(authReq);
 
         assertThrows(MyServerException.class, () -> logout.logout(authReq));
     }
 
     @Test
-    @DisplayName("Junit login fail")
-    public void failLogin() {
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+    @DisplayName("Junit logout fail")
+    public void failLogout() {
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
         AuthTokenRequest request = new AuthTokenRequest();
         LogoutService logoutService = new LogoutService();

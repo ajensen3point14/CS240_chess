@@ -1,5 +1,6 @@
 package server;
 
+import dataAccess.DataAccessException;
 import server.handlers.*;
 import spark.*;
 
@@ -46,6 +47,9 @@ public class Server {
             return info.getBody();
         } catch(MyServerException e) {
             res.status(e.getHttpErrorCode());
+            return String.format("{ \"message\": \"Error: %s\" }", e.getMessage());
+        } catch(DataAccessException e) {
+            res.status(500);
             return String.format("{ \"message\": \"Error: %s\" }", e.getMessage());
         } catch(Throwable e) {
             res.status(500);

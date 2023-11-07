@@ -22,10 +22,15 @@ public class JoinService {
         // verify that the user is logged in
         AuthTokenDAO authTokenDAO = AuthTokenDAO.getInstance();
         AuthToken user = authTokenDAO.find(req.getAuthToken());
-
+        if (user == null) {
+            throw new MyServerException("Unauthorized", 401);
+        }
         // Set player sides based on provided color
 
         Game myGame = GameDAO.getInstance().find(req.getGameID());
+        if (myGame == null) {
+            throw new MyServerException("Bad request", 400);
+        }
         if ("WHITE".equals(req.getPlayerColor())) {
             if (myGame.getWhiteUsername() != null && !myGame.getWhiteUsername().equals(user.getUsername())) {
                 throw new MyServerException("already taken", 403);
@@ -47,5 +52,6 @@ public class JoinService {
         }else {
             throw new MyServerException("bad request", 400);
         }
+        GameDAO.getInstance().update(myGame);
     }
 }

@@ -9,6 +9,7 @@ import server.DAO.UserDAO;
 import server.MyServerException;
 import server.models.AuthToken;
 import server.models.Game;
+import server.models.User;
 import server.requests.JoinRequest;
 import server.services.ClearService;
 import server.services.JoinService;
@@ -26,12 +27,13 @@ class JoinServiceTest {
     @DisplayName("Junit join game success")
     public void successJoin() {
         // Create a user, authToken, and a game
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
-        Game game = GameDAO.getInstance().addGame("myGame");
+        Game game = new Game(0, "myGame");
+        GameDAO.getInstance().addGame(game);
 
         assertNotNull(UserDAO.getInstance().find("Doug", "Fillmore"));
-        assertNotNull(AuthTokenDAO.getInstance().find("Doug"));
         assertNotNull(AuthTokenDAO.getInstance().find(token.getAuthToken()));
 
         // Add the user to the game as the WHITE player
@@ -42,7 +44,7 @@ class JoinServiceTest {
         JoinService join = new JoinService();
         join.join(request);
 
-        assertEquals("Doug", game.getWhiteUsername());
+        assertEquals("Doug", GameDAO.getInstance().find(request.getGameID()).getWhiteUsername());
 
         // Add the user to the game as the BLACK player
         request = new JoinRequest();
@@ -52,7 +54,7 @@ class JoinServiceTest {
         join = new JoinService();
         join.join(request);
 
-        assertEquals("Doug", game.getWhiteUsername());
+        assertEquals("Doug", GameDAO.getInstance().find(request.getGameID()).getWhiteUsername());
 
         // Add the user to the game as an observer
         request = new JoinRequest();
@@ -62,19 +64,20 @@ class JoinServiceTest {
         join = new JoinService();
         join.join(request);
 
-        assertEquals(1, game.getObservers().size());
+        assertEquals(1, GameDAO.getInstance().find(request.getGameID()).getObservers().size());
     }
 
     @Test
     @DisplayName("Junit join game fail")
     public void failJoin() {
         // Create a user, authToken, and a game
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
-        Game game = GameDAO.getInstance().addGame("myGame");
+        Game game = new Game(0, "myGame");
+        GameDAO.getInstance().addGame(game);
 
         assertNotNull(UserDAO.getInstance().find("Doug", "Fillmore"));
-        assertNotNull(AuthTokenDAO.getInstance().find("Doug"));
         assertNotNull(AuthTokenDAO.getInstance().find(token.getAuthToken()));
 
         // Try to add the player to the PINK team

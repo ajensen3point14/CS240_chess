@@ -9,6 +9,7 @@ import server.DAO.UserDAO;
 import server.MyServerException;
 import server.models.AuthToken;
 import server.models.Game;
+import server.models.User;
 import server.requests.AuthTokenRequest;
 import server.results.ListResult;
 import server.services.ClearService;
@@ -27,12 +28,13 @@ class ListServiceTest {
     @DisplayName("Junit list game success")
     public void successList() {
         // Create a user, authToken, and a game
-        UserDAO.getInstance().insert("Doug", "Fillmore", "d@f.com");
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
         AuthToken token = AuthTokenDAO.getInstance().create("Doug");
-        Game game = GameDAO.getInstance().addGame("myGame");
+        Game game = new Game(0, "myGame");
+        GameDAO.getInstance().addGame(game);
 
         assertNotNull(UserDAO.getInstance().find("Doug", "Fillmore"));
-        assertNotNull(AuthTokenDAO.getInstance().find("Doug"));
         assertNotNull(AuthTokenDAO.getInstance().find(token.getAuthToken()));
 
         // Verify that the database has been populated with 1 game
@@ -45,7 +47,8 @@ class ListServiceTest {
         assertEquals(1, result.getGames().size());
 
         // Add another game
-        Game game2 = GameDAO.getInstance().addGame("myGame2");
+        Game game2 = new Game(1, "myGame2");
+        GameDAO.getInstance().addGame(game2);
 
         // Verify that the database has been populated with 2 games
         result = listService.list(request);
@@ -61,9 +64,8 @@ class ListServiceTest {
     @DisplayName("Junit list game fail")
     public void failList() {
         // Create a user, authToken, and a game
-        UserDAO.getInstance().insert("Bob", "Fillmore", "d@f.com");
-
-        assertNotNull(UserDAO.getInstance().find("Bob", "Fillmore"));
+        User user = new User("Doug", "Fillmore", "d@f.com");
+        UserDAO.getInstance().insert(user);
 
         // Set a bad authToken, which is required to call "list"
         AuthTokenRequest request = new AuthTokenRequest();
