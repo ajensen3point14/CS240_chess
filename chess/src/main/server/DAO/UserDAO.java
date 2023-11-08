@@ -31,13 +31,7 @@ public class UserDAO implements DAO{
 
     private UserDAO() {
         this.connection = Database.connection();
-        createTable();
-    }
-
-    /**
-     * Create the user table if it doesn't exist.
-     */
-    public void createTable() {
+        // Create DB tables
         String createTableSQL = "CREATE TABLE IF NOT EXISTS user (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY," +
                 "name VARCHAR(255) NOT NULL UNIQUE," +

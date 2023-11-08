@@ -29,14 +29,7 @@ public class AuthTokenDAO implements DAO{
 
     private AuthTokenDAO() {
         this.connection = Database.connection();
-        createTable();
-    }
-
-
-    /**
-     * Create the auth_token table if it doesn't exist.
-     */
-    public void createTable() {
+        // Create DB tables
         String createTableSQL = "CREATE TABLE IF NOT EXISTS auth_token (" +
                 "token VARCHAR(255) PRIMARY KEY," +
                 "username VARCHAR(255) NOT NULL" +

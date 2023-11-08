@@ -36,13 +36,7 @@ public class GameDAO implements DAO{
 
     private GameDAO() {
         this.connection = Database.connection();
-        createTable();
-    }
-
-    /**
-     * Create the game table if it doesn't exist.
-     */
-    public void createTable() {
+        // Create DB table, if it doesn't already exist
         String createTableSQL = "CREATE TABLE IF NOT EXISTS game (" +
                 "id INT AUTO_INCREMENT PRIMARY KEY," +
                 "game_name VARCHAR(255) NOT NULL," +
@@ -58,6 +52,7 @@ public class GameDAO implements DAO{
             throw new DataAccessException("Error creating game table");
         }
     }
+
 
     /**
      * Add a game to the database. Throw a max capacity error if full.
@@ -115,6 +110,7 @@ public class GameDAO implements DAO{
             }
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new DataAccessException("FindAll error");
         }
         return games;
     }

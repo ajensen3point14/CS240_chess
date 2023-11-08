@@ -3,6 +3,7 @@ package UnitTests;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import server.DAO.UserDAO;
 import server.MyServerException;
 import server.requests.RegisterRequest;
 import server.results.RegisterResult;
@@ -31,7 +32,7 @@ class RegisterServiceTest {
 
         RegisterResult result = register.register(request);
 
-        assertEquals("Doug", result.getUsername());
+        assertEquals("Doug", UserDAO.getInstance().find(request.getUsername(), request.getPassword()).getUsername());
     }
 
     @Test
