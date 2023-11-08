@@ -21,6 +21,17 @@ class UserDAOTest {
     }
 
     @Test
+    @DisplayName("Junit clear users")
+    public void clearUsers() {
+        User newUser = new User("Doug", "Fillmore", "A@B.com");
+        UserDAO.getInstance().insert(newUser);
+        assertEquals("Doug", UserDAO.getInstance().find("Doug", "Fillmore").getUsername());
+
+        UserDAO.getInstance().clear();
+        assertNull(UserDAO.getInstance().find("Doug", "Fillmore"));
+    }
+
+    @Test
     @DisplayName("Junit insert success")
     public void successInsert() {
         RegisterRequest request = new RegisterRequest();

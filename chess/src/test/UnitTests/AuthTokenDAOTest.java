@@ -18,6 +18,16 @@ class AuthTokenDAOTest {
     }
 
     @Test
+    @DisplayName("Junit clear authTokens")
+    public void clearTokens() {
+        // create a token in the DB and find it
+        AuthToken token = AuthTokenDAO.getInstance().create("Doug");
+        assertEquals(token.getAuthToken(), AuthTokenDAO.getInstance().find(token.getAuthToken()).getAuthToken());
+
+        AuthTokenDAO.getInstance().clear();
+        assertNull(AuthTokenDAO.getInstance().find(token.getAuthToken()));
+    }
+    @Test
     @DisplayName("Junit create and find success")
     public void successCreateFind() {
         // create a token in the DB and find it

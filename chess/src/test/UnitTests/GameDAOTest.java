@@ -2,6 +2,7 @@ package UnitTests;
 
 import dataAccess.DataAccessException;
 import dataAccess.Database;
+import org.ietf.jgss.GSSManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,7 +12,6 @@ import server.services.ClearService;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
 import java.sql.Statement;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -21,6 +21,18 @@ class GameDAOTest {
     public void clearDB() {
         ClearService clear = new ClearService();
         clear.clear();
+    }
+
+    @Test
+    @DisplayName("Junit clear games")
+    public void clearGames() {
+        // create a game in the DB and find it
+        Game game = new Game(1, "myGame");
+        assertEquals(game, GameDAO.getInstance().addGame(game));
+        assertEquals(game.getGameName(), GameDAO.getInstance().find(game.getGameID()).getGameName());
+
+        GameDAO.getInstance().clear();
+        assertNull(GameDAO.getInstance().find(game.getGameID()));
     }
 
     @Test
