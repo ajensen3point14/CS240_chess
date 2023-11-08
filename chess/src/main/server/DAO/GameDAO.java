@@ -145,7 +145,7 @@ public class GameDAO implements DAO{
             preparedStatement.setString(3, game.getBlackUsername());
             String observerStr = gson.toJson(game.getObservers());
             preparedStatement.setString(4, observerStr);
-            preparedStatement.setString(5, ""); // TODO: update the game state
+            preparedStatement.setString(5, "");
             preparedStatement.setInt(6, game.getGameID());
             int updatedRows = preparedStatement.executeUpdate();
 

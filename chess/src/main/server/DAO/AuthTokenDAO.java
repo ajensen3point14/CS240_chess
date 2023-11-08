@@ -46,6 +46,7 @@ public class AuthTokenDAO implements DAO{
      * Creates a new authToken for the given username.
      */
     public AuthToken create(String username) {
+        // generate unique random token
         String token = UUID.randomUUID().toString();
         String insertSQL = "INSERT INTO auth_token (token, username) VALUES (?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL)) {

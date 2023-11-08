@@ -2,15 +2,12 @@ package server.DAO;
 
 import dataAccess.DataAccessException;
 import dataAccess.Database;
-import server.MyServerException;
 import server.models.User;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import java.util.HashMap;
 
 /**
  * Interactions between the users and the database will occur here.
