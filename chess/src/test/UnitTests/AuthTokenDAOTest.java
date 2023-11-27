@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import server.DAO.AuthTokenDAO;
-import server.models.AuthToken;
+import models.AuthToken;
 import server.services.ClearService;
 
 import static org.junit.jupiter.api.Assertions.*;

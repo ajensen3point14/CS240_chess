@@ -7,10 +7,10 @@ import server.DAO.AuthTokenDAO;
 import server.DAO.GameDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
-import server.models.AuthToken;
-import server.models.Game;
-import server.models.User;
-import server.requests.JoinRequest;
+import models.AuthToken;
+import models.Game;
+import models.User;
+import requests.JoinRequest;
 import server.services.ClearService;
 import server.services.JoinService;
 

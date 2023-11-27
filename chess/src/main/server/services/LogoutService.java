@@ -2,7 +2,7 @@ package server.services;
 
 import server.DAO.AuthTokenDAO;
 import server.MyServerException;
-import server.requests.AuthTokenRequest;
+import requests.AuthTokenRequest;
 
 /**
  * Log a user out

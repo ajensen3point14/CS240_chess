@@ -2,12 +2,11 @@ package UnitTests;
 
 import dataAccess.DataAccessException;
 import dataAccess.Database;
-import org.ietf.jgss.GSSManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import server.DAO.GameDAO;
-import server.models.Game;
+import models.Game;
 import server.services.ClearService;
 
 import java.sql.Connection;

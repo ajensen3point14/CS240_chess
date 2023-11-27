@@ -1,4 +1,4 @@
-package server.requests;
+package requests;
 
 /**
  * Request for registering a new user

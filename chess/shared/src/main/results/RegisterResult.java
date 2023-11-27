@@ -1,4 +1,4 @@
-package server.results;
+package results;
 
 /**
  * Result of a register request, providing a username and an authToken

@@ -1,7 +1,7 @@
 package server.handlers;
 
 import server.ServerResponse;
-import server.requests.AuthTokenRequest;
+import requests.AuthTokenRequest;
 import server.services.LogoutService;
 
 /**

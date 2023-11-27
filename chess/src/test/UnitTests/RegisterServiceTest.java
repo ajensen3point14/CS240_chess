@@ -5,8 +5,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import server.DAO.UserDAO;
 import server.MyServerException;
-import server.requests.RegisterRequest;
-import server.results.RegisterResult;
+import requests.RegisterRequest;
+import results.RegisterResult;
 import server.services.ClearService;
 import server.services.RegisterService;
 

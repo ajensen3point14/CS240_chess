@@ -1,4 +1,4 @@
-package server.requests;
+package requests;
 
 /**
  * This authtoken request works for both the logout and list games handlers, since

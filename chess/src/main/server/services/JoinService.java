@@ -3,9 +3,9 @@ package server.services;
 import server.DAO.AuthTokenDAO;
 import server.DAO.GameDAO;
 import server.MyServerException;
-import server.models.AuthToken;
-import server.models.Game;
-import server.requests.JoinRequest;
+import models.AuthToken;
+import models.Game;
+import requests.JoinRequest;
 
 /**
  * Join a game

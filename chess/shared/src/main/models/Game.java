@@ -1,4 +1,4 @@
-package server.models;
+package models;
 
 import chess.MyGame;
 

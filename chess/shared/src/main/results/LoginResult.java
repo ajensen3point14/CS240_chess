@@ -1,4 +1,4 @@
-package server.results;
+package results;
 
 /**
  * Result of a login request, looking at username and its authToken

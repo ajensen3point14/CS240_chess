@@ -1,13 +1,12 @@
 package server.services;
 
-import dataAccess.DataAccessException;
 import server.DAO.AuthTokenDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
-import server.models.AuthToken;
-import server.models.User;
-import server.requests.LoginRequest;
-import server.results.LoginResult;
+import models.AuthToken;
+import models.User;
+import requests.LoginRequest;
+import results.LoginResult;
 
 /**
  * Log a user in

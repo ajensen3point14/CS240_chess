@@ -6,10 +6,10 @@ import org.junit.jupiter.api.Test;
 import server.DAO.AuthTokenDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
-import server.models.AuthToken;
-import server.models.User;
-import server.requests.LoginRequest;
-import server.results.LoginResult;
+import models.AuthToken;
+import models.User;
+import requests.LoginRequest;
+import results.LoginResult;
 import server.services.ClearService;
 import server.services.LoginService;
 

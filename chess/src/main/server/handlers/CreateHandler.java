@@ -1,8 +1,8 @@
 package server.handlers;
 
 import server.ServerResponse;
-import server.requests.CreateRequest;
-import server.results.CreateResult;
+import requests.CreateRequest;
+import results.CreateResult;
 import server.services.CreateService;
 
 /**

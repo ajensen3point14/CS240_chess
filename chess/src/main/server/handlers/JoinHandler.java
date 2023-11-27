@@ -1,7 +1,7 @@
 package server.handlers;
 
 import server.ServerResponse;
-import server.requests.JoinRequest;
+import requests.JoinRequest;
 import server.services.JoinService;
 
 /**

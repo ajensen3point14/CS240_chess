@@ -1,8 +1,8 @@
 package server.handlers;
 
 import server.ServerResponse;
-import server.requests.AuthTokenRequest;
-import server.results.ListResult;
+import requests.AuthTokenRequest;
+import results.ListResult;
 import server.services.ListService;
 
 /**

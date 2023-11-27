@@ -1,4 +1,4 @@
-package server.models;
+package models;
 
 /**
  * Creates an AuthToken associated with a given username

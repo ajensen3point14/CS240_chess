@@ -1,6 +1,6 @@
-package server.results;
+package results;
 
-import server.models.Game;
+import models.Game;
 
 import java.util.ArrayList;
 import java.util.Collection;

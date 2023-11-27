@@ -3,10 +3,10 @@ package server.services;
 import server.DAO.AuthTokenDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
-import server.models.AuthToken;
-import server.models.User;
-import server.requests.RegisterRequest;
-import server.results.RegisterResult;
+import models.AuthToken;
+import models.User;
+import requests.RegisterRequest;
+import results.RegisterResult;
 
 import java.util.Objects;
 

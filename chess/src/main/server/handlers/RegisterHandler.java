@@ -1,8 +1,8 @@
 package server.handlers;
 
 import server.ServerResponse;
-import server.requests.RegisterRequest;
-import server.results.RegisterResult;
+import requests.RegisterRequest;
+import results.RegisterResult;
 import server.services.RegisterService;
 
 /**

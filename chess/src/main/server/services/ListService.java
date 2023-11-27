@@ -3,9 +3,9 @@ package server.services;
 import server.DAO.AuthTokenDAO;
 import server.DAO.GameDAO;
 import server.MyServerException;
-import server.models.AuthToken;
-import server.requests.AuthTokenRequest;
-import server.results.ListResult;
+import models.AuthToken;
+import requests.AuthTokenRequest;
+import results.ListResult;
 
 /**
  * List all games in a database

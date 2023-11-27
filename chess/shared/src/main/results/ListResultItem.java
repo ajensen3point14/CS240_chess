@@ -1,6 +1,6 @@
-package server.results;
+package results;
 
-import server.models.Game;
+import models.Game;
 
 /**
  * Helper that generates an individual game to add to the list of games
@@ -20,5 +20,21 @@ public class ListResultItem{
         this.whiteUsername = game.getWhiteUsername();
         this.blackUsername = game.getBlackUsername();
         this.gameName = game.getGameName();
+    }
+
+    public int getGameID() {
+        return gameID;
+    }
+
+    public String getWhiteUsername() {
+        return whiteUsername;
+    }
+
+    public String getBlackUsername() {
+        return blackUsername;
+    }
+
+    public String getGameName() {
+        return gameName;
     }
 }

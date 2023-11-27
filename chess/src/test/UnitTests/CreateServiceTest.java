@@ -7,9 +7,9 @@ import server.DAO.AuthTokenDAO;
 import server.DAO.GameDAO;
 import server.DAO.UserDAO;
 import server.MyServerException;
-import server.models.AuthToken;
-import server.models.User;
-import server.requests.CreateRequest;
+import models.AuthToken;
+import models.User;
+import requests.CreateRequest;
 import server.services.ClearService;
 import server.services.CreateService;
 

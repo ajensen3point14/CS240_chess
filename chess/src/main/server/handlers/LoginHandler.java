@@ -1,8 +1,8 @@
 package server.handlers;
 
 import server.ServerResponse;
-import server.requests.LoginRequest;
-import server.results.LoginResult;
+import requests.LoginRequest;
+import results.LoginResult;
 import server.services.LoginService;
 
 /**

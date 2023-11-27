@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import dataAccess.DataAccessException;
 import dataAccess.Database;
-import server.models.Game;
+import models.Game;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

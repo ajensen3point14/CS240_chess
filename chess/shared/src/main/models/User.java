@@ -1,4 +1,4 @@
-package server.models;
+package models;
 
 /**
  * Creates a unique user to play on the chess server

@@ -5,9 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import server.DAO.UserDAO;
-import server.models.User;
-import server.requests.RegisterRequest;
-import server.results.RegisterResult;
+import models.User;
+import requests.RegisterRequest;
+import results.RegisterResult;
 import server.services.ClearService;
 import server.services.RegisterService;
 

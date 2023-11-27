@@ -1,4 +1,4 @@
-package server.requests;
+package requests;
 
 /**
  * Request for logging a user in

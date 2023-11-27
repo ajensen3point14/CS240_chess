@@ -3,10 +3,10 @@ package server.services;
 import server.DAO.AuthTokenDAO;
 import server.DAO.GameDAO;
 import server.MyServerException;
-import server.models.AuthToken;
-import server.models.Game;
-import server.requests.CreateRequest;
-import server.results.CreateResult;
+import models.AuthToken;
+import models.Game;
+import requests.CreateRequest;
+import results.CreateResult;
 
 import java.util.Objects;
 
