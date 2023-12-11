@@ -39,4 +39,10 @@ public class LoginService {
 
         return res;
     }
+
+    public String resolveAuthTokenToID(String token) {
+        AuthTokenDAO tokenDAO = AuthTokenDAO.getInstance();
+        AuthToken userToken = tokenDAO.find(token);
+        return userToken.getUsername();
+    }
 }

@@ -1,11 +1,14 @@
 package server.services;
 
+import dataAccess.DataAccessException;
 import server.DAO.AuthTokenDAO;
 import server.DAO.GameDAO;
 import server.MyServerException;
 import models.AuthToken;
 import models.Game;
 import requests.JoinRequest;
+
+import java.util.Objects;
 
 /**
  * Join a game
@@ -52,6 +55,35 @@ public class JoinService {
         }else {
             throw new MyServerException("bad request", 400);
         }
+        GameDAO.getInstance().update(myGame);
+    }
+
+    public void unjoin(JoinRequest req) {
+        // verify that the user is logged in
+        AuthTokenDAO authTokenDAO = AuthTokenDAO.getInstance();
+        AuthToken user = authTokenDAO.find(req.getAuthToken());
+        if (user == null) {
+            throw new MyServerException("Unauthorized", 401);
+        }
+
+        Game myGame = GameDAO.getInstance().find(req.getGameID());
+        if (myGame == null) {
+            throw new MyServerException("Bad request", 400);
+        }
+
+        // Remove user from the game
+        if (Objects.equals(myGame.getWhiteUsername(), user.getUsername())) {
+            myGame.setWhiteUsername(null);
+        } else if (Objects.equals(myGame.getBlackUsername(), user.getUsername())) {
+            myGame.setBlackUsername(null);
+        } else {
+            if (!myGame.getObservers().contains(user.getUsername())) {
+                throw new DataAccessException("Game not joined");
+            }
+            myGame.getObservers().remove(user.getUsername());
+        }
+
+        // Update the DAO
         GameDAO.getInstance().update(myGame);
     }
 }

@@ -1,6 +1,8 @@
 package server;
 
+import ServerWebSockets.WSServer;
 import dataAccess.DataAccessException;
+import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import server.handlers.*;
 import spark.*;
 
@@ -13,6 +15,8 @@ public class Server {
     public static void main(String[] args) {
         String portNum = "8080";
         if (args.length != 0) { portNum = args[0]; }
+        Spark.webSocket("/connect", WSServer.class);
+
         new Server().run(portNum);
     }
 
@@ -26,6 +30,7 @@ public class Server {
         // Register director for hosting static files
         Spark.externalStaticFileLocation("C:\\Users\\aaron\\Documents\\GitHub\\chess\\chess\\web");
 
+        Spark.webSocket("/connect", WSServer.class);
         Spark.post("/user", this::user);
         Spark.post("/session", this::session);
         Spark.delete("/session", this::logout);
@@ -34,6 +39,7 @@ public class Server {
         Spark.put("/game", this::join);
         Spark.delete("/db", this::clear);
         Spark.get("/hello", this::test);
+        Spark.get("/echo/:msg", (req, res) -> "HTTP response: " + req.params(":msg"));
     }
 
     // This is the single location for all server requests to be run

@@ -1,12 +1,16 @@
 package clientUI;
 
+import ClientWebSockets.WSClient;
+import WSShared.GameCommand;
 import com.google.gson.Gson;
 import commands.HelpCommand;
 import models.Game;
 import models.User;
 import requests.*;
 import results.*;
+import server.Server;
 import ui.EscapeSequences;
+import webSocketMessages.userCommands.UserGameCommand;
 
 import java.io.IOException;
 import java.net.URI;
@@ -22,12 +26,20 @@ import static ui.EscapeSequences.BLACK_KING;
 
 public class ServerFacade {
     String myURI = "http://localhost:8080";
+    WSClient ws;
     String token;
     int gameID;
     ListResult gamesList;
 
     private boolean loggedIn = false;
     protected Gson gson = new Gson();
+
+    public ServerFacade(WSClient ws) {
+        this.ws = ws;
+    }
+
+
+    public ServerFacade() {}
 
     public String getToken() {
         return token;
@@ -39,6 +51,14 @@ public class ServerFacade {
 
     public ListResult getGamesList() {
         return gamesList;
+    }
+    public void doWebSocketRequest(GameCommand cmd) {
+        String webRequest = gson.toJson(cmd);
+        try {
+            ws.send(webRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void register(String username, String password, String email) {
@@ -76,6 +96,11 @@ public class ServerFacade {
         LoginResult result = gson.fromJson(myResult, LoginResult.class);
         token = result.getAuthToken();
         loggedIn = true;
+
+        // Display postlogin help UI
+        String[] postLogin = {};
+        HelpCommand help = new HelpCommand(loggedIn);
+        help.execute(postLogin);
     }
 
     public void logout() {
@@ -135,7 +160,15 @@ public class ServerFacade {
         req.setPlayerColor(color);
 
         String myReq = gson.toJson(req);
-        doRequest(myReq, "PUT", "/game");
+        GameCommand gameCmd = new GameCommand(token);
+        gameCmd.setSerializedRequest(myReq);
+        if (color == null) { gameCmd.setCommandType(UserGameCommand.CommandType.JOIN_OBSERVER); }
+        else { gameCmd.setCommandType(UserGameCommand.CommandType.JOIN_PLAYER); }
+
+        doWebSocketRequest(gameCmd);
+
+
+        // doRequest(myReq, "PUT", "/game");
 
         // Display the game board (Phase 5 requirement)
         // Orient white at bottom
@@ -143,6 +176,23 @@ public class ServerFacade {
         System.out.println();
         // Orient black at bottom
         displayBoard("black");
+    }
+
+    public void leave(int gameID) {
+        JoinRequest req = new JoinRequest();
+        req.setGameID(gameID);
+
+        String myReq = gson.toJson(req);
+        GameCommand gameCmd = new GameCommand(token);
+        gameCmd.setSerializedRequest(myReq);
+        gameCmd.setCommandType(UserGameCommand.CommandType.LEAVE);
+
+        doWebSocketRequest(gameCmd);
+
+        // Display postlogin help UI
+        String[] postLogin = {};
+        HelpCommand help = new HelpCommand(loggedIn);
+        help.execute(postLogin);
     }
 
     // Used for unit testing -- clear the DB each time

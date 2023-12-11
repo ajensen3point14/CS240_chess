@@ -1,5 +1,6 @@
 package commands;
 
+import ClientWebSockets.WSClient;
 import clientUI.*;
 
 public class CommandDispatcher {
@@ -42,6 +43,9 @@ public class CommandDispatcher {
                 break;
             case "observe":
                 newCommand = new JoinCommand(server);
+                break;
+            case "leave":
+                newCommand = new LeaveCommand(server);
                 break;
             case "quit":
                 // exit the program (don't repeat the client loop)

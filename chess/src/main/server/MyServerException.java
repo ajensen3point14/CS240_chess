@@ -3,7 +3,7 @@ package server;
 /**
  * Exception that will be thrown if the server encounters an error from this program
  */
-public class MyServerException extends RuntimeException{
+public class MyServerException extends RuntimeException {
     int httpErrorCode;
 
     /**
