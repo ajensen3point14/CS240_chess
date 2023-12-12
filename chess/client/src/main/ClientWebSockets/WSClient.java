@@ -40,6 +40,7 @@ public class WSClient extends Endpoint implements MessageHandler.Whole<String> {
 
             case LOAD_GAME:
                 System.out.println("Loading game...");
+                myGame = sm.getGame().getGame();
                 PrintBoard chessboard_display =  new PrintBoard();
                 chessboard_display.displayBoard(playerColor, sm.getGame().getGame());
                 break;
@@ -49,7 +50,7 @@ public class WSClient extends Endpoint implements MessageHandler.Whole<String> {
                 break;
 
             case ERROR:
-                System.out.println("Error!");
+                System.out.println("Error! " + sm.getErrorMessage());
                 break;
             default:
                 System.out.println("Unrecognized message from server:\n" + message);

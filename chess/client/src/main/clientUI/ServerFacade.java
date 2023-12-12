@@ -3,10 +3,8 @@ package clientUI;
 import ClientWebSockets.WSClient;
 import WSShared.OldGameCommand;
 import WSShared.GameCommand;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPieceDeserializer;
-import chess.MyGame;
+import chess.*;
+import chess.pieces.MyPiece;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import commands.HelpCommand;
@@ -170,7 +168,7 @@ public class ServerFacade {
         req.setPlayerColor(color);
         req.setAuthToken(token);
         req.setGameID(gamesList.getGames().get(gameNum - 1).getGameID());
-        doRequest(gson.toJson(req), "/PUT", "/game");
+        doRequest(gson.toJson(req), "PUT", "/game");
 
         GameCommand cmd = new GameCommand(token, UserGameCommand.CommandType.JOIN_PLAYER);
         cmd.setGameID(gamesList.getGames().get(gameNum - 1).getGameID());
@@ -212,16 +210,44 @@ public class ServerFacade {
     }
 
     public void move(String move) {
-        OldGameCommand gameCmd = new OldGameCommand(token);
+        GameCommand gameCmd = new GameCommand(token, UserGameCommand.CommandType.MAKE_MOVE);
+        gameCmd.setGameID(currGameID);
 
-        MoveRequest moveRequest = new MoveRequest();
-        moveRequest.setMove(move);
-        moveRequest.setAuthToken(token);
-        moveRequest.setGameID(currGameID);
-        moveRequest.setPlayerColor(getWSClientPlayerColor());
+        int startCol = move.charAt(0) - 'a' + 1;
+        int startRow = move.charAt(1) - '1' + 1;
+        int endCol = move.charAt(2) - 'a' + 1;
+        int endRow = move.charAt(3) - '1' + 1;
 
-        gameCmd.setSerializedRequest(gson.toJson(moveRequest));
-        gameCmd.setCommandType(UserGameCommand.CommandType.MAKE_MOVE);
+        ChessPiece piece = ws.getMyGame().getBoard().getPiece(new MyPosition(startRow, startCol));
+        String promotionPieceStr = null;
+        ChessPiece.PieceType promotionPiece = null;
+
+        // Handle piece promotion
+        if (piece != null && piece.getPieceType().equals(ChessPiece.PieceType.PAWN)) {
+            if (endRow == 8 || endRow == 1) {
+                while (true) {
+                    System.out.println("Pawn promotion piece (Q, R, B, N): ");
+                    promotionPieceStr = ConsoleInputReader.readInput();
+                    if ("Q".equals(promotionPieceStr)) {
+                        promotionPiece = ChessPiece.PieceType.QUEEN;
+                        break;
+                    } else if ("R".equals(promotionPieceStr)) {
+                        promotionPiece = ChessPiece.PieceType.ROOK;
+                        break;
+                    } else if ("N".equals(promotionPieceStr)) {
+                        promotionPiece = ChessPiece.PieceType.KNIGHT;
+                        break;
+                    } else if ("B".equals(promotionPieceStr)) {
+                        promotionPiece = ChessPiece.PieceType.BISHOP;
+                        break;
+                    }
+                    System.out.println("Invalid promotion piece");
+                }
+            }
+        }
+
+        MyMove myMove = new MyMove(new MyPosition(startRow, startCol), new MyPosition(endRow, endCol), promotionPiece);
+        gameCmd.setMove(myMove);
 
         doWebSocketRequest(gameCmd);
     }

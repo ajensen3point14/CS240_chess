@@ -21,8 +21,23 @@ public class ChessMoveDeserializer implements JsonDeserializer<ChessMove> {
         int endRow = endPos.get("row").getAsInt();
         int endCol = endPos.get("col").getAsInt();
 
-        // TODO: handle piece promotion
-        MyMove myMove = new MyMove(new MyPosition(startRow, startCol), new MyPosition(endRow, endCol), null);
+        String promotion = null;
+        if (jsonObject.get("promotion") != null) {
+             promotion = jsonObject.get("promotion").getAsString();
+        }
+
+        ChessPiece.PieceType promotionPiece = null;
+        if ("QUEEN".equals(promotion)) {
+            promotionPiece = ChessPiece.PieceType.QUEEN;
+        } else if ("ROOK".equals(promotion)) {
+            promotionPiece = ChessPiece.PieceType.ROOK;
+        } else if ("KNIGHT".equals(promotion)) {
+            promotionPiece = ChessPiece.PieceType.KNIGHT;
+        } else if ("BISHOP".equals(promotion)) {
+            promotionPiece = ChessPiece.PieceType.BISHOP;
+        }
+
+        MyMove myMove = new MyMove(new MyPosition(startRow, startCol), new MyPosition(endRow, endCol), promotionPiece);
 
         return myMove;
     }

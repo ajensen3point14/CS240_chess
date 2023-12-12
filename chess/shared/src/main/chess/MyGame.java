@@ -167,7 +167,8 @@ public class MyGame implements ChessGame {
         ChessPiece piece = board.getPiece(start);
 
         if (piece != null && piece.getTeamColor() == teamTurn) {
-            if (validMoves(start).contains(move)) {
+            Collection<ChessMove> tmp = validMoves(start);
+            if (tmp.contains(move)) {
                 // check if castling kingside
                 if (piece.getPieceType() == ChessPiece.PieceType.KING && end.getColumn() - start.getColumn() > 1) {
                     ChessPosition kingRookStart = new MyPosition(start.getRow(), 8);

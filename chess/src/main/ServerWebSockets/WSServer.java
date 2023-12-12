@@ -95,8 +95,6 @@ public class WSServer {
     private void move(Session session, GameCommand cmd) throws IOException, InvalidMoveException {
         String gameID = String.valueOf(cmd.getGameID());
 
-        // TODO: handle piece promotion
-
         GameDAO gameDAO = GameDAO.getInstance();
         Game game = gameDAO.find(cmd.getGameID());
         if (game.getGame().isGameOver()) { throw new MyServerException("Game is over", 403); }
