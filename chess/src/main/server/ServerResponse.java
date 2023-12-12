@@ -1,9 +1,12 @@
 package server;
 
+import models.Game;
+
 /**
  * messages and status of the server after it responds to a request
  */
 public class ServerResponse {
+    Game game;
     String body;
     int statusCode;
 
@@ -14,6 +17,22 @@ public class ServerResponse {
     public ServerResponse(String body) {
         this.body = body;
         this.statusCode = 0;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public void setGame(Game game) {
+        this.game = game;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
     }
 
     public String getBody() {

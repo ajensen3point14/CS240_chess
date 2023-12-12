@@ -10,10 +10,20 @@ public class MyGame implements ChessGame {
     private MyBoard board;
     private TeamColor teamTurn;
     private ChessMove lastMove = null;
+    private boolean gameOver = false;
+
     public MyGame() {
         this.board = new MyBoard();
         // White starts the game
         this.teamTurn = TeamColor.WHITE;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+
+    public void setGameOver(boolean gameOver) {
+        this.gameOver = gameOver;
     }
 
     @Override

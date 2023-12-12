@@ -1,7 +1,9 @@
 package clientUI;
 
 import ClientWebSockets.WSClient;
+import WSShared.OldGameCommand;
 import WSShared.GameCommand;
+import chess.ChessGame;
 import chess.ChessPiece;
 import chess.ChessPieceDeserializer;
 import chess.MyGame;
@@ -61,7 +63,7 @@ public class ServerFacade {
     public String getWSClientPlayerColor() { return ws.getPlayerColor(); }
     public void setWSClientPlayerColor(String color) { ws.setPlayerColor(color); }
 
-    public void doWebSocketRequest(GameCommand cmd) {
+    public void doWebSocketRequest(UserGameCommand cmd) {
         String webRequest = gson.toJson(cmd);
         try {
             ws.send(webRequest);
@@ -165,17 +167,17 @@ public class ServerFacade {
             throw new MyClientException("Invalid game number");
         }
         JoinRequest req = new JoinRequest();
-        req.setGameID(gamesList.getGames().get(gameNum - 1).getGameID());
         req.setPlayerColor(color);
+        req.setAuthToken(token);
+        req.setGameID(gamesList.getGames().get(gameNum - 1).getGameID());
+        doRequest(gson.toJson(req), "/PUT", "/game");
 
-        String myReq = gson.toJson(req);
-        GameCommand gameCmd = new GameCommand(token);
-        gameCmd.setSerializedRequest(myReq);
-        if (color == null) { gameCmd.setCommandType(UserGameCommand.CommandType.JOIN_OBSERVER); }
-        else { gameCmd.setCommandType(UserGameCommand.CommandType.JOIN_PLAYER); }
+        GameCommand cmd = new GameCommand(token, UserGameCommand.CommandType.JOIN_PLAYER);
+        cmd.setGameID(gamesList.getGames().get(gameNum - 1).getGameID());
+        cmd.setPlayerColor(color.equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK);
 
-        doWebSocketRequest(gameCmd);
-        currGameID = req.getGameID();
+        doWebSocketRequest(cmd);
+        currGameID = cmd.getGameID();
     }
 
     public void leave(int gameID) {
@@ -183,7 +185,7 @@ public class ServerFacade {
         req.setGameID(gameID);
 
         String myReq = gson.toJson(req);
-        GameCommand gameCmd = new GameCommand(token);
+        OldGameCommand gameCmd = new OldGameCommand(token);
         gameCmd.setSerializedRequest(myReq);
         gameCmd.setCommandType(UserGameCommand.CommandType.LEAVE);
 
@@ -201,7 +203,7 @@ public class ServerFacade {
         req.setGameID(gameID);
 
         String myReq = gson.toJson(req);
-        GameCommand gameCmd = new GameCommand(token);
+        OldGameCommand gameCmd = new OldGameCommand(token);
         gameCmd.setSerializedRequest(myReq);
         gameCmd.setCommandType(UserGameCommand.CommandType.RESIGN);
 
@@ -210,7 +212,7 @@ public class ServerFacade {
     }
 
     public void move(String move) {
-        GameCommand gameCmd = new GameCommand(token);
+        OldGameCommand gameCmd = new OldGameCommand(token);
 
         MoveRequest moveRequest = new MoveRequest();
         moveRequest.setMove(move);

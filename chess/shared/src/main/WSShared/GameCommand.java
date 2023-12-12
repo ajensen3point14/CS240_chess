@@ -1,35 +1,40 @@
 package WSShared;
 
+import chess.ChessGame;
+import chess.ChessMove;
 import webSocketMessages.userCommands.UserGameCommand;
 
-import java.io.Serializable;
+public class GameCommand extends UserGameCommand {
+    private Integer gameID;
+    private ChessMove move;
+    private ChessGame.TeamColor playerColor;
 
-public class GameCommand extends UserGameCommand implements Serializable {
-    private String gameBoard;
-    private String serializedRequest;
-
-
-    public GameCommand(String authToken) {
+    public GameCommand(String authToken, CommandType cmd) {
         super(authToken);
+        commandType = cmd;
     }
 
-    public String getSerializedRequest() {
-        return serializedRequest;
+    public Integer getGameID() {
+        return gameID;
     }
 
-    public void setSerializedRequest(String serializedRequest) {
-        this.serializedRequest = serializedRequest;
+    public void setGameID(Integer gameID) {
+        this.gameID = gameID;
     }
 
-    public void setCommandType(CommandType commandType) {
-        this.commandType = commandType;
+    public ChessMove getMove() {
+        return move;
     }
 
-    public String getGameBoard() {
-        return gameBoard;
+    public void setMove(ChessMove move) {
+        this.move = move;
     }
 
-    public void setGameBoard(String gameBoard) {
-        this.gameBoard = gameBoard;
+    public ChessGame.TeamColor getPlayerColor() {
+        return playerColor;
+    }
+
+    public void setPlayerColor(ChessGame.TeamColor playerColor) {
+        this.playerColor = playerColor;
     }
 }

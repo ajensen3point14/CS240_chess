@@ -28,7 +28,10 @@ public class JoinHandler extends Handler{
         JoinService joinService = new JoinService();
         Game game = joinService.join(request);
 
-        return new ServerResponse(gson.toJson(game.getGame()));
+        ServerResponse response = new ServerResponse("{}");
+        response.setGame(game);
+
+        return response;
     }
 
     public ServerResponse handleLeaveRequest(JoinRequest request) {

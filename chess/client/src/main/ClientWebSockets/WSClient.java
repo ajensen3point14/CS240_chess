@@ -1,10 +1,10 @@
 package ClientWebSockets;
 
+import WSShared.GameMessage;
 import chess.*;
 import clientUI.PrintBoard;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import webSocketMessages.serverMessages.ServerMessage;
 
 import javax.websocket.*;
 import java.net.URI;
@@ -35,18 +35,17 @@ public class WSClient extends Endpoint implements MessageHandler.Whole<String> {
     public void onMessage(String message) {
         System.out.println("We heard from the server!\n" + message);
 
-        ServerMessage sm = gson.fromJson(message, ServerMessage.class);
+        GameMessage sm = gson.fromJson(message, GameMessage.class);
         switch (sm.getServerMessageType()) {
 
             case LOAD_GAME:
                 System.out.println("Loading game...");
-                myGame = gson.fromJson(sm.getSerializedResult(), MyGame.class);
                 PrintBoard chessboard_display =  new PrintBoard();
-                chessboard_display.displayBoard(playerColor, getMyGame());
+                chessboard_display.displayBoard(playerColor, sm.getGame().getGame());
                 break;
 
             case NOTIFICATION:
-                System.out.println("Notification!");
+                System.out.println("Notification: " + sm.getMessage());
                 break;
 
             case ERROR:

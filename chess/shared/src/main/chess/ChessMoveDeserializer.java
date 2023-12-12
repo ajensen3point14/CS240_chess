@@ -24,6 +24,6 @@ public class ChessMoveDeserializer implements JsonDeserializer<ChessMove> {
         // TODO: handle piece promotion
         MyMove myMove = new MyMove(new MyPosition(startRow, startCol), new MyPosition(endRow, endCol), null);
 
-        return null;
+        return myMove;
     }
 }
