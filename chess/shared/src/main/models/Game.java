@@ -13,11 +13,12 @@ public class Game {
     String blackUsername;
     String gameName;
     ArrayList<String> observers = new ArrayList<String>();
-    MyGame game;
+    MyGame game = new MyGame();
 
     public Game(int id, String name) {
         this.gameID = id;
         this.gameName = name;
+        game.getBoard().resetBoard();
     }
 
     public void setObservers(ArrayList<String> observers) {

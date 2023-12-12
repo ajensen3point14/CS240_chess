@@ -1,5 +1,6 @@
 package server.handlers;
 
+import models.Game;
 import server.Server;
 import server.ServerResponse;
 import requests.JoinRequest;
@@ -25,9 +26,9 @@ public class JoinHandler extends Handler{
 
     public ServerResponse handleRequest(JoinRequest request) {
         JoinService joinService = new JoinService();
-        joinService.join(request);
+        Game game = joinService.join(request);
 
-        return new ServerResponse("{}");
+        return new ServerResponse(gson.toJson(game.getGame()));
     }
 
     public ServerResponse handleLeaveRequest(JoinRequest request) {

@@ -38,14 +38,8 @@ public class CommandDispatcher {
             case "list":
                 newCommand = new ListCommand(server);
                 break;
-            case "join":
+            case "join", "observe":
                 newCommand = new JoinCommand(server);
-                break;
-            case "observe":
-                newCommand = new JoinCommand(server);
-                break;
-            case "leave":
-                newCommand = new LeaveCommand(server);
                 break;
             case "quit":
                 // exit the program (don't repeat the client loop)

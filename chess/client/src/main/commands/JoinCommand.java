@@ -1,6 +1,8 @@
 package commands;
 
+import clientUI.ConsoleInputReader;
 import clientUI.ServerFacade;
+import models.Game;
 
 import java.util.Objects;
 
@@ -32,5 +34,15 @@ public class JoinCommand implements CommandInterface{
         }
 
         server.join(id, color);
+        server.setWSClientPlayerColor(color);
+
+        // Loop to play the game
+        GameplayCommandDispatcher gameplayCommandDispatcher = new GameplayCommandDispatcher(server, color);
+        String userInput = null;
+        do {
+            System.out.print("Game " + id + " >> ");
+            userInput = ConsoleInputReader.readInput();
+
+        } while (gameplayCommandDispatcher.dispatch(userInput));
     }
 }

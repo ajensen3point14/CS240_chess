@@ -2,13 +2,14 @@ package clientUI;
 
 import ClientWebSockets.WSClient;
 import WSShared.GameCommand;
+import chess.ChessPiece;
+import chess.ChessPieceDeserializer;
+import chess.MyGame;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import commands.HelpCommand;
-import models.Game;
-import models.User;
 import requests.*;
 import results.*;
-import server.Server;
 import ui.EscapeSequences;
 import webSocketMessages.userCommands.UserGameCommand;
 
@@ -21,37 +22,45 @@ import java.net.http.HttpResponse;
 import java.util.Objects;
 
 import static ui.EscapeSequences.*;
-import static ui.EscapeSequences.BLACK_KING;
 
 
 public class ServerFacade {
     String myURI = "http://localhost:8080";
     WSClient ws;
     String token;
-    int gameID;
+    int currGameID;
     ListResult gamesList;
 
     private boolean loggedIn = false;
-    protected Gson gson = new Gson();
+    protected Gson gson = null;
+
 
     public ServerFacade(WSClient ws) {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(ChessPiece.class, new ChessPieceDeserializer());
+        gson = builder.create();
         this.ws = ws;
     }
 
 
     public ServerFacade() {}
 
+    public MyGame getMyGame() { return ws.getMyGame(); }
+
     public String getToken() {
         return token;
     }
 
-    public int getGameID() {
-        return gameID;
+    public int getCurrGameID() {
+        return currGameID;
     }
 
     public ListResult getGamesList() {
         return gamesList;
     }
+    public String getWSClientPlayerColor() { return ws.getPlayerColor(); }
+    public void setWSClientPlayerColor(String color) { ws.setPlayerColor(color); }
+
     public void doWebSocketRequest(GameCommand cmd) {
         String webRequest = gson.toJson(cmd);
         try {
@@ -123,7 +132,7 @@ public class ServerFacade {
         String myReq = gson.toJson(req);
         String myResult = doRequest(myReq, "POST", "/game");
         CreateResult result = gson.fromJson(myResult, CreateResult.class);
-        gameID = result.getGameID();
+        currGameID = result.getGameID();
     }
 
     public void list() {
@@ -166,16 +175,7 @@ public class ServerFacade {
         else { gameCmd.setCommandType(UserGameCommand.CommandType.JOIN_PLAYER); }
 
         doWebSocketRequest(gameCmd);
-
-
-        // doRequest(myReq, "PUT", "/game");
-
-        // Display the game board (Phase 5 requirement)
-        // Orient white at bottom
-        displayBoard("white");
-        System.out.println();
-        // Orient black at bottom
-        displayBoard("black");
+        currGameID = req.getGameID();
     }
 
     public void leave(int gameID) {
@@ -188,11 +188,40 @@ public class ServerFacade {
         gameCmd.setCommandType(UserGameCommand.CommandType.LEAVE);
 
         doWebSocketRequest(gameCmd);
+        currGameID = -1;
 
         // Display postlogin help UI
         String[] postLogin = {};
         HelpCommand help = new HelpCommand(loggedIn);
         help.execute(postLogin);
+    }
+
+    public void resign(int gameID) {
+        JoinRequest req = new JoinRequest();
+        req.setGameID(gameID);
+
+        String myReq = gson.toJson(req);
+        GameCommand gameCmd = new GameCommand(token);
+        gameCmd.setSerializedRequest(myReq);
+        gameCmd.setCommandType(UserGameCommand.CommandType.RESIGN);
+
+        doWebSocketRequest(gameCmd);
+        currGameID = -1;
+    }
+
+    public void move(String move) {
+        GameCommand gameCmd = new GameCommand(token);
+
+        MoveRequest moveRequest = new MoveRequest();
+        moveRequest.setMove(move);
+        moveRequest.setAuthToken(token);
+        moveRequest.setGameID(currGameID);
+        moveRequest.setPlayerColor(getWSClientPlayerColor());
+
+        gameCmd.setSerializedRequest(gson.toJson(moveRequest));
+        gameCmd.setCommandType(UserGameCommand.CommandType.MAKE_MOVE);
+
+        doWebSocketRequest(gameCmd);
     }
 
     // Used for unit testing -- clear the DB each time

@@ -1,6 +1,11 @@
 package clientUI;
 
 import ClientWebSockets.WSClient;
+import chess.ChessPiece;
+import chess.ChessPieceDeserializer;
+import chess.MyGame;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import commands.*;
 import ui.EscapeSequences;
 
@@ -21,24 +26,26 @@ public class ChessClient {
         // Connect to the server
         System.out.println("Connected to server");
 
-
-
-        // TESTCODE: Communicate with server
-        // System.out.print(">>>> ");
-        // Scanner scanner = new Scanner(System.in);
-
-        // while (true) ws.send(scanner.nextLine());
-
-
         displayWelcomeMessage();
         String userInput = null;
+
+        /*
+        TODO:
+        Server:
+        - Server get game state from DB, send to client (make_move)
+        - Client makes move, sends to server. Server validates move (make_move)
+        - Server applies move update state in DB and resend to clients (make_move)
+
+        Client:
+        - Draw game state on client (local)
+        - Highlight legal moves (local)
+
+        - Pass test cases
+         */
 
         do {
             System.out.print(">>>> ");
             userInput = ConsoleInputReader.readInput();
-
-
-            // get(userInput);
 
         } while (commandDispatcher.dispatch(userInput));
     }

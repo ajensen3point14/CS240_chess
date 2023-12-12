@@ -15,11 +15,11 @@ public class LeaveCommand implements CommandInterface{
 
     @Override
     public void execute(String[] commandParts) {
-        if (Objects.equals(commandParts[0], "leave") && commandParts.length != 2 ) {
-            System.out.println("Usage: leave [gameID]");
+        if (Objects.equals(commandParts[0], "leave") && commandParts.length != 1 ) {
+            System.out.println("Usage: leave");
             return;
         }
-        int id = parseInt(commandParts[1]);
+        int id = server.getCurrGameID();
 
         server.leave(id);
     }

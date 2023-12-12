@@ -1,6 +1,8 @@
 package server.DAO;
 
+import chess.*;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import dataAccess.DataAccessException;
 import dataAccess.Database;
@@ -23,7 +25,7 @@ import java.util.List;
  */
 public class GameDAO implements DAO{
     private final Connection connection;
-    protected Gson gson = new Gson();
+    protected Gson gson = null;
 
     private static GameDAO single_instance = null;
 
@@ -35,6 +37,11 @@ public class GameDAO implements DAO{
     }
 
     private GameDAO() {
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(ChessMove.class, new ChessMoveDeserializer());
+        builder.registerTypeAdapter(ChessPiece.class, new ChessPieceDeserializer());
+        gson = builder.create();
+
         this.connection = Database.connection();
         // Create DB table, if it doesn't already exist
         String createTableSQL = "CREATE TABLE IF NOT EXISTS game (" +
@@ -43,7 +50,7 @@ public class GameDAO implements DAO{
                 "white_username VARCHAR(255)," +
                 "black_username VARCHAR(255)," +
                 "observers VARCHAR(1024)," +
-                "game_state VARCHAR(1024)" +
+                "game_state TEXT" +
                 ")";
         try (Statement statement = connection.createStatement()) {
             statement.execute(createTableSQL);
@@ -59,9 +66,16 @@ public class GameDAO implements DAO{
      * This will set a gameID, and set the given name for the game.
      */
     public Game addGame(Game game) {
-        String insertSQL = "INSERT INTO game (game_name) VALUES (?)";
+        String insertSQL = "INSERT INTO game (game_name, game_state) VALUES (?, ?)";
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSQL, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setString(1, game.getGameName());
+
+            // Serialize game state and add to statement
+
+
+            String gameState = gson.toJson(game.getGame());
+            preparedStatement.setString(2, gameState);
+
             preparedStatement.executeUpdate();
 
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
@@ -128,6 +142,10 @@ public class GameDAO implements DAO{
         if (obsList == null) { obsList = new ArrayList<>(); }
         game.setObservers(obsList);
 
+        String game_state = resultSet.getString("game_state");
+        MyGame myGame = gson.fromJson(game_state, MyGame.class);
+        game.setGame(myGame);
+
         return game;
     }
 
@@ -145,8 +163,11 @@ public class GameDAO implements DAO{
             preparedStatement.setString(3, game.getBlackUsername());
             String observerStr = gson.toJson(game.getObservers());
             preparedStatement.setString(4, observerStr);
-            preparedStatement.setString(5, "");
+            // preparedStatement.setString(5, "");
+            String gameState = gson.toJson(game.getGame());
+            preparedStatement.setString(5, gameState);
             preparedStatement.setInt(6, game.getGameID());
+
             int updatedRows = preparedStatement.executeUpdate();
 
             if (updatedRows == 0) {
@@ -155,6 +176,25 @@ public class GameDAO implements DAO{
         } catch (SQLException e) {
             e.printStackTrace();
             throw new DataAccessException("Error updating a game");
+        }
+    }
+
+    /**
+     * Remove the specified game from the DB
+     */
+    public void removeGame(int gameId) {
+        String removeSQL = "DELETE FROM game WHERE id = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(removeSQL)) {
+            preparedStatement.setInt(1, gameId);
+
+            if (find(gameId) != null) {
+                preparedStatement.executeUpdate();
+            } else {
+                throw new DataAccessException("Game not found");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new DataAccessException("Error removing a game");
         }
     }
 

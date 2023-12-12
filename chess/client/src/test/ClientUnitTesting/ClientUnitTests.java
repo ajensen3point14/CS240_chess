@@ -152,7 +152,7 @@ class ClientUnitTests {
 
         server.create(gameName);
 
-        assertNotNull(server.getGameID());
+        assertNotNull(server.getCurrGameID());
     }
 
     @Test
@@ -240,7 +240,7 @@ class ClientUnitTests {
         // Join as WHITE player
         server.join(1, "WHITE");
         server.list();
-        assertEquals("Doug", server.getGamesList().getGames().get(server.getGameID() - 1).getWhiteUsername());
+        assertEquals("Doug", server.getGamesList().getGames().get(server.getCurrGameID() - 1).getWhiteUsername());
     }
 
     @Test
@@ -290,8 +290,8 @@ class ClientUnitTests {
         // Join game as observer
         server.join(1, null);
         server.list();
-        assertNull(server.getGamesList().getGames().get(server.getGameID() - 1).getWhiteUsername());
-        assertNull(server.getGamesList().getGames().get(server.getGameID() - 1).getBlackUsername());
+        assertNull(server.getGamesList().getGames().get(server.getCurrGameID() - 1).getWhiteUsername());
+        assertNull(server.getGamesList().getGames().get(server.getCurrGameID() - 1).getBlackUsername());
     }
 
     @Test

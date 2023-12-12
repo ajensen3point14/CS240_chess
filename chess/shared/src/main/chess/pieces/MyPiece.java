@@ -21,6 +21,8 @@ public abstract class MyPiece implements ChessPiece {
         return numMoves > 0;
     }
 
+    public void setNumMoves(int numMoves) { this.numMoves = numMoves; }
+
     @Override
     public void bumpMoveCt() {
         numMoves++;
