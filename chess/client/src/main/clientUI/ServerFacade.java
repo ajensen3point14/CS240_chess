@@ -8,6 +8,7 @@ import chess.pieces.MyPiece;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import commands.HelpCommand;
+import models.Game;
 import requests.*;
 import results.*;
 import ui.EscapeSequences;
@@ -88,11 +89,6 @@ public class ServerFacade {
 
         // Log user in
         login(username, password);
-
-        // Display postlogin help UI
-        String[] postLogin = {};
-        HelpCommand help = new HelpCommand(loggedIn);
-        help.execute(postLogin);
     }
 
     public void login(String username, String password) {
@@ -128,6 +124,7 @@ public class ServerFacade {
     public void create(String gameName) {
         CreateRequest req = new CreateRequest();
         req.setGameName(gameName);
+        req.setAuthToken(token);
 
         String myReq = gson.toJson(req);
         String myResult = doRequest(myReq, "POST", "/game");
@@ -170,24 +167,24 @@ public class ServerFacade {
         req.setGameID(gamesList.getGames().get(gameNum - 1).getGameID());
         doRequest(gson.toJson(req), "PUT", "/game");
 
-        GameCommand cmd = new GameCommand(token, UserGameCommand.CommandType.JOIN_PLAYER);
+        GameCommand cmd = null;
+        if (color == null) {
+            cmd = new GameCommand(token, UserGameCommand.CommandType.JOIN_OBSERVER);
+        } else {
+            cmd = new GameCommand(token, UserGameCommand.CommandType.JOIN_PLAYER);
+            cmd.setPlayerColor(color.equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK);
+        }
         cmd.setGameID(gamesList.getGames().get(gameNum - 1).getGameID());
-        cmd.setPlayerColor(color.equalsIgnoreCase("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK);
 
         doWebSocketRequest(cmd);
         currGameID = cmd.getGameID();
     }
 
     public void leave(int gameID) {
-        JoinRequest req = new JoinRequest();
-        req.setGameID(gameID);
+        GameCommand cmd = new GameCommand(token, UserGameCommand.CommandType.LEAVE);
+        cmd.setGameID(currGameID);
 
-        String myReq = gson.toJson(req);
-        OldGameCommand gameCmd = new OldGameCommand(token);
-        gameCmd.setSerializedRequest(myReq);
-        gameCmd.setCommandType(UserGameCommand.CommandType.LEAVE);
-
-        doWebSocketRequest(gameCmd);
+        doWebSocketRequest(cmd);
         currGameID = -1;
 
         // Display postlogin help UI
@@ -196,17 +193,11 @@ public class ServerFacade {
         help.execute(postLogin);
     }
 
-    public void resign(int gameID) {
-        JoinRequest req = new JoinRequest();
-        req.setGameID(gameID);
+    public void resign() {
+        GameCommand cmd = new GameCommand(token, UserGameCommand.CommandType.RESIGN);
+        cmd.setGameID(currGameID);
 
-        String myReq = gson.toJson(req);
-        OldGameCommand gameCmd = new OldGameCommand(token);
-        gameCmd.setSerializedRequest(myReq);
-        gameCmd.setCommandType(UserGameCommand.CommandType.RESIGN);
-
-        doWebSocketRequest(gameCmd);
-        currGameID = -1;
+        doWebSocketRequest(cmd);
     }
 
     public void move(String move) {
@@ -255,183 +246,6 @@ public class ServerFacade {
     // Used for unit testing -- clear the DB each time
     public void clear() {
         doRequest(null, "DELETE", "/db");
-    }
-
-    public void displayBoard(String orientation) {
-        // Top border
-        System.out.print(SET_BG_COLOR_LIGHT_GREY);
-        if (Objects.equals(orientation, "black")) {
-            System.out.print("    h  g  f  e  d  c  b  a    ");
-        }
-        if (Objects.equals(orientation, "white")) {
-            System.out.print("    a  b  c  d  e  f  g  h    ");
-        }
-        System.out.print(EscapeSequences.RESET_BG_COLOR);
-        System.out.println();
-
-        String pawn_color;
-        if (Objects.equals(orientation, "white")) {
-            pawn_color = SET_TEXT_COLOR_RED;
-        } else {
-            pawn_color = SET_TEXT_COLOR_BLUE;
-        }
-
-        // top pieces
-        // Back row
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(8, orientation));
-        if (Objects.equals(orientation, "black")) {
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " R ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " N ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " B ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " K ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " Q ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " B ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " N ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " R ");
-        } else {
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " R ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " N ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " B ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " Q ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " K ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " B ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " N ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " R ");
-        }
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(8, orientation));
-        System.out.println();
-
-        // Row 7
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(7, orientation));
-        drawSquare(SET_BG_COLOR_BLACK, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_WHITE, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_BLACK, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_WHITE, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_BLACK, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_WHITE, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_BLACK, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_WHITE, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(7, orientation));
-        System.out.println();
-
-        // Row 6
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(6, orientation));
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(6, orientation));
-        System.out.println();
-
-        // Row 5
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(5, orientation));
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(5, orientation));
-        System.out.println();
-
-        // Row 4
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(4, orientation));
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(4, orientation));
-        System.out.println();
-
-        // Row 3
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(3, orientation));
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_BLACK, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_WHITE, SET_TEXT_COLOR_BLUE, "   ");
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(3, orientation));
-        System.out.println();
-
-        // Bottom pawn row
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(2, orientation));
-        if (orientation == "white") {
-            pawn_color = SET_TEXT_COLOR_BLUE;
-        } else {
-            pawn_color = SET_TEXT_COLOR_RED;
-        }
-        drawSquare(SET_BG_COLOR_WHITE, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_BLACK, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_WHITE, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_BLACK, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_WHITE, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_BLACK, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_WHITE, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_BLACK, pawn_color, " P ");
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(2, orientation));
-        System.out.println();
-
-        // Bottom row
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(1, orientation));
-        if (orientation == "white") {
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " R ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " N ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " B ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " Q ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " K ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " B ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " N ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " R ");
-        } else {
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " R ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " N ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " B ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " K ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " Q ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " B ");
-            drawSquare(SET_BG_COLOR_BLACK, pawn_color, " N ");
-            drawSquare(SET_BG_COLOR_WHITE, pawn_color, " R ");
-        }
-        drawSquare(SET_BG_COLOR_LIGHT_GREY, SET_TEXT_COLOR_BLACK, getRowNum(1, orientation));
-        System.out.println();
-
-        // Bottom border
-        System.out.print(SET_BG_COLOR_LIGHT_GREY);
-        if (Objects.equals(orientation, "black")) {
-            System.out.print("    h  g  f  e  d  c  b  a    ");
-        }
-        if (Objects.equals(orientation, "white")) {
-            System.out.print("    a  b  c  d  e  f  g  h    ");
-        }
-        System.out.print(EscapeSequences.RESET_BG_COLOR);
-        System.out.println();
-    }
-
-    private String getRowNum(int val, String orientation) {
-        if (orientation == "white") {
-            return String.format(" %d ", val);
-        } else {
-            return String.format(" %d ", 9 - val);
-        }
-    }
-
-    private void drawSquare(String bg, String fg, String text) {
-        System.out.print(bg + fg + text);
-        System.out.print(EscapeSequences.RESET_BG_COLOR);
-        System.out.print(EscapeSequences.SET_TEXT_COLOR_WHITE);
     }
 
     // Need a method that will handle sending/receiving the server

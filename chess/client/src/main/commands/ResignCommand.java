@@ -24,7 +24,7 @@ public class ResignCommand implements CommandInterface{
 
 
         if (confirmResignation()) {
-            server.resign(id);
+            server.resign();
         } else {
             System.out.println("Resignation canceled.");
         }

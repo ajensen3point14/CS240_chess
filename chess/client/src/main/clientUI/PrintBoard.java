@@ -1,12 +1,10 @@
 package clientUI;
 
-import chess.ChessPiece;
-import chess.ChessPosition;
-import chess.MyGame;
-import chess.MyPosition;
+import chess.*;
 import chess.pieces.MyPiece;
 import ui.EscapeSequences;
 
+import java.util.Collection;
 import java.util.Objects;
 
 public class PrintBoard {
@@ -14,6 +12,8 @@ public class PrintBoard {
     private static final String SET_BG_COLOR_WHITE = EscapeSequences.SET_BG_COLOR_WHITE;
     private static final String SET_BG_COLOR_BLACK = EscapeSequences.SET_BG_COLOR_BLACK;
     private static final String SET_BG_COLOR_DARK_GREY = EscapeSequences.SET_BG_COLOR_DARK_GREY;
+    private static final String SET_BG_COLOR_GREEN = EscapeSequences.SET_BG_COLOR_GREEN;
+    private static final String SET_BG_COLOR_YELLOW = EscapeSequences.SET_BG_COLOR_YELLOW;
     private static final String RESET_BG_COLOR = EscapeSequences.RESET_BG_COLOR;
     private static final String SET_TEXT_COLOR_BLACK = EscapeSequences.SET_TEXT_COLOR_BLACK;
     private static final String SET_TEXT_COLOR_RED = EscapeSequences.SET_TEXT_COLOR_RED;
@@ -25,9 +25,10 @@ public class PrintBoard {
     public PrintBoard() {}
 
 
-    public void displayBoard(String orientation, MyGame myGame) {
+    public void displayBoard(String orientation, MyGame myGame, Collection<ChessMove> validMoves) {
         System.out.print(EscapeSequences.ERASE_SCREEN);
         System.out.println("It is " + myGame.getTeamTurn() + "'s turn");
+        if (orientation == null) { orientation = "WHITE"; };
 
         // Draw the top border
         System.out.print(SET_BG_COLOR_LIGHT_GREY);
@@ -57,12 +58,12 @@ public class PrintBoard {
                 // Draw alternating black and white squares
                 MyPosition pos = new MyPosition(row + 1, col + 1);
                 if (orientation.equalsIgnoreCase("white")) {
-                    drawSquare(getBgColor(row, col), getTextColor(row, col, orientation), myGame.getBoard().getPiece(pos));
+                    drawSquare(getBgColor(row, col, validMoves, orientation), getTextColor(row, col, orientation), myGame.getBoard().getPiece(pos));
                 } else {
                     int reverseCol = 7 - col;
                     int reverseRow = 7 - row;
                     MyPosition blackPos = new MyPosition(reverseRow + 1, reverseCol + 1);
-                    drawSquare(getBgColor(row, col), getTextColor(row, reverseCol, orientation), myGame.getBoard().getPiece(blackPos));
+                    drawSquare(getBgColor(row, col, validMoves, orientation), getTextColor(row, reverseCol, orientation), myGame.getBoard().getPiece(blackPos));
                 }
             }
 
@@ -108,8 +109,24 @@ public class PrintBoard {
         return "";
     }
 
-    private String getBgColor(int row, int col) {
+    private String getBgColor(int row, int col, Collection<ChessMove> moves, String orientation) {
         // Determine the background color based on the position
+
+        if (moves != null) {
+            MyPosition pos = null;
+            if (Objects.equals(orientation, "WHITE")) {
+                pos = new MyPosition(row + 1, col + 1);
+            } else {
+                pos = new MyPosition(8 - row, 8 - col);
+            }
+            for (ChessMove move : moves) {
+                if (pos.equals(move.getEndPosition())) {
+                    return SET_BG_COLOR_GREEN;
+                } else if (pos.equals(move.getStartPosition())) {
+                    return SET_BG_COLOR_YELLOW;
+                }
+            }
+        }
         return ((row + col) % 2 == 0) ? SET_BG_COLOR_BLACK : SET_BG_COLOR_WHITE;
     }
 

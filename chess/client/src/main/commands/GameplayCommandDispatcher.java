@@ -39,7 +39,7 @@ public class GameplayCommandDispatcher {
                 case "refresh":
                     MyGame myGame = server.getMyGame();
                     PrintBoard chessboard_display =  new PrintBoard();
-                    chessboard_display.displayBoard(playerColor, myGame);
+                    chessboard_display.displayBoard(playerColor, myGame, null);
                     break;
                 default:
                     // if it's a valid move, execute it

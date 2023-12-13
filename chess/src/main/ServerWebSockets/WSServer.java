@@ -127,8 +127,13 @@ public class WSServer {
         notifyClients(gson.toJson(serverMessage), gameID);
 
         // Notify players of the move
+        char startCol = (char)((int)'a' + cmd.getMove().getStartPosition().getColumn() - 1);
+        char startRow = (char)((int)'1' + cmd.getMove().getStartPosition().getRow() - 1);
+        char endCol = (char)((int)'a' + cmd.getMove().getEndPosition().getColumn() - 1);
+        char endRow = (char)((int)'1' + cmd.getMove().getEndPosition().getRow() - 1);
+
         GameMessage moveMessage = new GameMessage(ServerMessage.ServerMessageType.NOTIFICATION);
-        moveMessage.setMessage("player made move: ");
+        moveMessage.setMessage(userID + " made move: " + startCol + startRow + endCol + endRow);
         notifyOtherClients(gson.toJson(moveMessage), gameID, session);
     }
 
@@ -221,7 +226,9 @@ public class WSServer {
         GameDAO gameDAO = GameDAO.getInstance();
         Game game = gameDAO.find(cmd.getGameID());
 
-        if (!Objects.equals(userID, game.getWhiteUsername()) && !Objects.equals(userID, game.getBlackUsername())) { throw new MyServerException("Observers cannot resign", 400); }
+        if (!Objects.equals(userID, game.getWhiteUsername()) && !Objects.equals(userID, game.getBlackUsername())) {
+            throw new MyServerException("Observers cannot resign", 400);
+        }
 
         // Mark the game as over
         if (game.getGame().isGameOver()) { throw new MyServerException("Game has already ended", 400); }

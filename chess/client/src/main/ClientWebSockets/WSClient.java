@@ -33,8 +33,6 @@ public class WSClient extends Endpoint implements MessageHandler.Whole<String> {
     public void setPlayerColor(String color) { this.playerColor = color; }
 
     public void onMessage(String message) {
-        System.out.println("We heard from the server!\n" + message);
-
         GameMessage sm = gson.fromJson(message, GameMessage.class);
         switch (sm.getServerMessageType()) {
 
@@ -42,7 +40,14 @@ public class WSClient extends Endpoint implements MessageHandler.Whole<String> {
                 System.out.println("Loading game...");
                 myGame = sm.getGame().getGame();
                 PrintBoard chessboard_display =  new PrintBoard();
-                chessboard_display.displayBoard(playerColor, sm.getGame().getGame());
+                chessboard_display.displayBoard(playerColor, sm.getGame().getGame(), null);
+
+                if (getMyGame().isInCheckmate(ChessGame.TeamColor.WHITE) || getMyGame().isInCheckmate(ChessGame.TeamColor.BLACK)) {
+                    System.out.println("Checkmate!");
+                } else if (getMyGame().isInCheck(ChessGame.TeamColor.WHITE) || getMyGame().isInCheck(ChessGame.TeamColor.BLACK)) {
+                    System.out.println("Check!");
+                }
+
                 break;
 
             case NOTIFICATION:
